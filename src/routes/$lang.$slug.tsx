@@ -1,5 +1,12 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { alternateLinks, pageFromSlug, toLocale, type PageKey } from "@/i18n/config";
+import {
+  SITE_URL,
+  alternateLinks,
+  localePath,
+  pageFromSlug,
+  toLocale,
+  type PageKey,
+} from "@/i18n/config";
 import { getDict } from "@/i18n";
 import { getExtraDict } from "@/i18n/extra";
 import { StackPage } from "@/components/pages/StackPage";
@@ -37,6 +44,7 @@ export const Route = createFileRoute("/$lang/$slug")({
         { name: "description", content: meta.description },
         { property: "og:title", content: meta.title },
         { property: "og:description", content: meta.description },
+        { property: "og:url", content: `${SITE_URL}${localePath(locale, page)}` },
       ],
       links: alternateLinks(locale, page),
     };

@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { alternateLinks, toLocale } from "@/i18n/config";
+import { SITE_URL, alternateLinks, localePath, toLocale } from "@/i18n/config";
 import { getDict } from "@/i18n";
 import { HomePage } from "@/components/pages/HomePage";
 
@@ -13,6 +13,7 @@ export const Route = createFileRoute("/$lang/")({
         { name: "description", content: meta.description },
         { property: "og:title", content: meta.title },
         { property: "og:description", content: meta.description },
+        { property: "og:url", content: `${SITE_URL}${localePath(locale, "home")}` },
       ],
       links: alternateLinks(locale, "home"),
     };

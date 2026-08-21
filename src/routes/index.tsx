@@ -20,6 +20,7 @@ export const Route = createFileRoute("/")({
         { name: "description", content: meta.description },
         { property: "og:title", content: meta.title },
         { property: "og:description", content: meta.description },
+        { property: "og:url", content: `${SITE_URL}${localePath(defaultLocale, "home")}` },
       ],
       links: [
         { rel: "canonical", href: `${SITE_URL}${localePath(defaultLocale, "home")}` },
