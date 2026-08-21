@@ -81,15 +81,35 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "delplanche.cloud — Sovereign Infrastructure Hub" },
+      { title: "Sovereign Cloud Architecture — delplanche.cloud" },
       {
         name: "description",
         content:
-          "Gecureerde Zwitserse cloudinfrastructuur met FADP-bescherming en 100% hernieuwbare energie.",
+          "Absolute datasoevereiniteit, ontworpen voor volledige onafhankelijkheid. Gecureerde Zwitserse cloudinfrastructuur met FADP-bescherming en 100% hernieuwbare energie.",
       },
       { name: "author", content: "Delplanche" },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "delplanche.cloud" },
+      { property: "og:title", content: "Sovereign Cloud Architecture — delplanche.cloud" },
+      {
+        property: "og:description",
+        content: "Absolute datasoevereiniteit, ontworpen voor volledige onafhankelijkheid.",
+      },
+      { property: "og:url", content: "https://delplanche.cloud" },
+      { property: "og:image", content: "https://delplanche.cloud/og-image.jpg" },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      {
+        property: "og:image:alt",
+        content: "delplanche.cloud — Sovereign Cloud Architecture",
+      },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Sovereign Cloud Architecture — delplanche.cloud" },
+      {
+        name: "twitter:description",
+        content: "Absolute datasoevereiniteit, ontworpen voor volledige onafhankelijkheid.",
+      },
+      { name: "twitter:image", content: "https://delplanche.cloud/og-image.jpg" },
     ],
     links: [
       {
@@ -103,10 +123,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         type: "font/woff2",
         crossOrigin: "anonymous",
       },
+      { rel: "canonical", href: "https://delplanche.cloud" },
       { rel: "icon", type: "image/png", href: "/favicon.png" },
+      { rel: "shortcut icon", type: "image/png", href: "/favicon.png" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
     ],
   }),
+
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,

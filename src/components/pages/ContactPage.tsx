@@ -2,6 +2,11 @@ import { useState } from "react";
 import { Check, Copy, Loader2 } from "lucide-react";
 import { useLocale, type Dict } from "@/i18n";
 import {
+  CATEGORY_LABELS,
+  CATEGORY_ORDER,
+  type ContactCategory,
+} from "@/lib/contact-categories";
+import {
   Arrow,
   Field,
   PageShellLite,
@@ -18,6 +23,7 @@ export function ContactPage({ t }: { t: Dict }) {
   const p = t.contactPage;
   const [copied, setCopied] = useState<"pgp" | "matrix" | null>(null);
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [category, setCategory] = useState<ContactCategory | null>(null);
   const locale = useLocale();
 
   const copy = async (value: string, key: "pgp" | "matrix") => {
@@ -34,9 +40,11 @@ export function ContactPage({ t }: { t: Dict }) {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!category) return;
     const form = new FormData(e.currentTarget);
     const payload = {
       locale,
+      category,
       name: String(form.get("name") ?? ""),
       email: String(form.get("email") ?? ""),
       subject: String(form.get("subject") ?? ""),
@@ -95,6 +103,7 @@ export function ContactPage({ t }: { t: Dict }) {
                   className={`${actionClass} mt-8`}
                   onClick={() => {
                     setSummary(null);
+                    setCategory(null);
                     setState("idle");
                   }}
                 >
@@ -113,6 +122,37 @@ export function ContactPage({ t }: { t: Dict }) {
                 <label htmlFor="company">Company</label>
                 <input id="company" name="company" tabIndex={-1} autoComplete="off" />
               </div>
+              <fieldset className="md:col-span-2">
+                <legend className="font-mono text-[10px] tracking-[0.18em] text-muted-ink uppercase">
+                  Onderwerp-categorie
+                </legend>
+                <div className="mt-3 flex flex-wrap gap-2" role="radiogroup" aria-required="true">
+                  {CATEGORY_ORDER.map((key) => {
+                    const active = category === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        role="radio"
+                        aria-checked={active}
+                        onClick={() => setCategory(key)}
+                        className={`inline-flex min-h-11 items-center rounded-full border px-4 font-mono text-[10px] tracking-[0.16em] uppercase transition-colors focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-moss ${
+                          active
+                            ? "border-ebony bg-ebony text-canvas"
+                            : "border-gridline-strong bg-transparent text-muted-ink hover:border-ebony hover:text-ebony"
+                        }`}
+                      >
+                        {CATEGORY_LABELS[key]}
+                      </button>
+                    );
+                  })}
+                </div>
+                {state === "error" && !category && (
+                  <p className="mt-2 font-mono text-[10px] tracking-[0.16em] text-ebony uppercase">
+                    Kies een categorie
+                  </p>
+                )}
+              </fieldset>
               <Field label={p.name}>
                 <input required name="name" className={fieldClass} placeholder="Jona Delplanche" />
               </Field>
@@ -150,7 +190,7 @@ export function ContactPage({ t }: { t: Dict }) {
               <div className="flex flex-wrap items-center gap-5 md:col-span-2">
                 <button
                   type="submit"
-                  disabled={state === "sending"}
+                  disabled={state === "sending" || !category}
                   aria-busy={state === "sending"}
                   className={`${actionClass} relative overflow-hidden transition-all duration-300`}
                 >

@@ -17,6 +17,7 @@ export const submitInfraRequest = createServerFn({ method: "POST" })
     const { infraRequestEmail } = await import("./mail-templates.server");
     const mail = infraRequestEmail({ ...data, ticket, notes: data.notes || undefined });
     await sendDeskMail({
+      channel: "desk",
       to: DESK_ADDRESS,
       subject: mail.subject,
       html: mail.html,
@@ -32,6 +33,25 @@ export const submitContactMessage = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { sendDeskMail } = await import("./mailer.server");
     const { contactEmail, contactReceiptEmail } = await import("./mail-templates.server");
+    const { fingerprint, recallIdempotent, rememberIdempotent, detectSpam } = await import(
+      "./anti-abuse.server"
+    );
+    const { newRequestId, logMail } = await import("./mail-log.server");
+    const requestId = newRequestId();
+
+    const spamSignal = detectSpam([data.name, data.subject, data.message]);
+    if (spamSignal) {
+      logMail({ kind: "skipped", channel: "desk", reason: "spam_detected", requestId });
+      return { received: false, receipt: false, replay: false };
+    }
+
+    const idempotencyKey = fingerprint([data.email, data.category, data.subject, data.message]);
+    const replayed = recallIdempotent<{ received: boolean; receipt: boolean }>(idempotencyKey);
+    if (replayed) {
+      logMail({ kind: "skipped", channel: "desk", reason: "idempotent_replay", requestId });
+      return { ...replayed, replay: true };
+    }
+
     const mail = contactEmail(data);
     const receipt = contactReceiptEmail(data);
 
@@ -42,6 +62,9 @@ export const submitContactMessage = createServerFn({ method: "POST" })
         html: mail.html,
         text: mail.text,
         replyTo: data.email,
+        channel: "desk",
+        requestId,
+        idempotencyKey,
       }),
       sendDeskMail({
         to: data.email,
@@ -49,10 +72,15 @@ export const submitContactMessage = createServerFn({ method: "POST" })
         html: receipt.html,
         text: receipt.text,
         replyTo: DESK_ADDRESS,
+        channel: "receipt",
+        requestId,
+        idempotencyKey,
       }),
     ]);
 
-    return { received: desk.sent, receipt: client.sent };
+    const result = { received: desk.sent, receipt: client.sent };
+    if (desk.sent) rememberIdempotent(idempotencyKey, result);
+    return { ...result, replay: false };
   });
 
 export const getSystemStatus = createServerFn({ method: "GET" }).handler(async () => {

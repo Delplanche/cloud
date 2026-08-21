@@ -1,9 +1,20 @@
 import { z } from "zod";
 
+import {
+  CATEGORY_LABELS,
+  CONTACT_CATEGORIES,
+  type ContactCategory,
+} from "./contact-categories";
+
 export const INBOX_ADDRESS = "core@delplanche.cloud";
 export const DESK_ADDRESS = "desk@delplanche.cloud";
 
 export const localeSchema = z.enum(["en", "nl", "fr"]).default("en");
+
+/** Vier contactcategorieën — verplicht bij elke inzending. */
+export const contactCategorySchema = z.enum(CONTACT_CATEGORIES);
+export { CATEGORY_LABELS, CONTACT_CATEGORIES };
+export type { ContactCategory };
 
 export const infraRequestSchema = z.object({
   locale: localeSchema,
@@ -18,11 +29,14 @@ export const infraRequestSchema = z.object({
 
 export const contactMessageSchema = z.object({
   locale: localeSchema,
-  name: z.string().min(2).max(200),
-  email: z.string().email().max(200),
-  subject: z.string().min(2).max(200),
-  message: z.string().min(10).max(5000),
+  category: contactCategorySchema,
+  name: z.string().trim().min(2).max(200),
+  email: z.string().trim().email().max(200),
+  subject: z.string().trim().min(2).max(200),
+  message: z.string().trim().min(10).max(5000),
 });
+
+export type ContactMessage = z.infer<typeof contactMessageSchema>;
 
 export function makeTicket() {
   return `DPC-${Math.floor(100000 + Math.random() * 899999)}`;

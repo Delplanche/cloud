@@ -4,7 +4,6 @@ import { Menu } from "lucide-react";
 import { LanguageSwitcher, LocaleLink, useDict, useLocale } from "@/i18n";
 import type { PageKey } from "@/i18n/config";
 import { getExtraDict } from "@/i18n/extra";
-import brandLogo from "@/assets/delplanche-logo.png.asset.json";
 
 const navPages: {
   page: PageKey;
@@ -28,11 +27,11 @@ export function BrandMark({ className }: { className?: string }) {
       aria-label="delplanche.cloud"
     >
       <img
-        src={brandLogo.url}
+        src="/logo.png"
         alt="delplanche.cloud — Cloud Solutions"
         className="h-7 w-auto md:h-8"
-        width={830}
-        height={189}
+        width={1660}
+        height={512}
       />
     </Link>
   );
