@@ -7,7 +7,7 @@ import {
 } from "./submissions.server";
 
 export const submitInfraRequest = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => infraRequestSchema.parse(data))
+  .validator((data: unknown) => infraRequestSchema.parse(data))
   .handler(async ({ data }) => {
     const ticket = makeTicket();
     // Honeypot ingevuld: bots krijgen een plausibel antwoord, zonder notificatie.
