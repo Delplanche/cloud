@@ -110,6 +110,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "Absolute datasoevereiniteit, ontworpen voor volledige onafhankelijkheid.",
       },
       { name: "twitter:image", content: "https://delplanche.cloud/og-image.jpg" },
+      {
+        name: "twitter:image:alt",
+        content: "delplanche.cloud — Sovereign Cloud Architecture",
+      },
+      { name: "theme-color", content: "#1c1d1f" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "delplanche.cloud" },
+      { name: "application-name", content: "delplanche.cloud" },
     ],
     links: [
       {
