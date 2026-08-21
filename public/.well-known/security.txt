@@ -1,0 +1,6 @@
+Contact: mailto:core@delplanche.cloud
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: nl, en, fr
+Canonical: https://delplanche.cloud/.well-known/security.txt
+Policy: https://delplanche.cloud/nl/security
+Acknowledgments: https://delplanche.cloud/nl/security

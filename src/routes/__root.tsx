@@ -18,20 +18,40 @@ import { Footer } from "@/components/site/Footer";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+    <div
+      className="relative flex min-h-screen items-center justify-center px-6"
+      style={{
+        backgroundColor: "var(--ebony)",
+        backgroundImage:
+          "linear-gradient(to right, rgba(245,243,239,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(245,243,239,0.05) 1px, transparent 1px)",
+        backgroundSize: "40px 40px",
+      }}
+    >
+      <div className="w-full max-w-lg" style={{ color: "var(--canvas)" }}>
+        <p className="label-mono" style={{ color: "var(--terracotta)" }}>
+          Error / 404
         </p>
-        <div className="mt-6">
+        <h1 className="mt-4 font-serif text-5xl leading-tight md:text-6xl">Pagina niet gevonden</h1>
+        <div className="mt-5 h-px w-24" style={{ backgroundColor: "var(--terracotta)" }} />
+        <p className="mt-5 text-sm opacity-70">
+          Dit adres bestaat niet (meer) binnen onze architectuur. De rest van het systeem draait
+          gewoon door.
+        </p>
+        <div className="mt-8 flex flex-wrap gap-3">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="stamp-press inline-flex items-center justify-center rounded-full px-5 py-2.5 text-sm font-medium"
+            style={{ backgroundColor: "var(--canvas)", color: "var(--ebony)" }}
           >
-            Go home
+            Terug naar start
           </Link>
+          <a
+            href="/nl/contact"
+            className="inline-flex items-center justify-center rounded-full border px-5 py-2.5 text-sm font-medium"
+            style={{ borderColor: "rgba(245,243,239,0.28)", color: "var(--canvas)" }}
+          >
+            Contact
+          </a>
         </div>
       </div>
     </div>
@@ -110,6 +130,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "Absolute datasoevereiniteit, ontworpen voor volledige onafhankelijkheid.",
       },
       { name: "twitter:image", content: "https://delplanche.cloud/og-image.jpg" },
+      {
+        name: "twitter:image:alt",
+        content: "delplanche.cloud — Sovereign Cloud Architecture",
+      },
+      { name: "theme-color", content: "#1c1d1f" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "delplanche.cloud" },
+      { name: "application-name", content: "delplanche.cloud" },
     ],
     links: [
       {
@@ -127,6 +157,53 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "shortcut icon", type: "image/png", href: "/favicon.png" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
+      { rel: "icon", type: "image/png", href: "/icon-192.png", sizes: "192x192" },
+      { rel: "icon", type: "image/png", href: "/icon-512.png", sizes: "512x512" },
+      { rel: "manifest", href: "/manifest.json" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "@id": "https://delplanche.cloud/#organization",
+          name: "delplanche.cloud",
+          alternateName: "Delplanche Cloud Solutions",
+          url: "https://delplanche.cloud",
+          logo: {
+            "@type": "ImageObject",
+            url: "https://delplanche.cloud/logo.png",
+            width: 702,
+            height: 160,
+          },
+          image: "https://delplanche.cloud/og-image.jpg",
+          description:
+            "Sovereign Cloud Architecture — gecureerde Zwitserse cloudinfrastructuur met FADP-bescherming en 100% hernieuwbare energie.",
+          slogan: "Absolute datasoevereiniteit, ontworpen voor volledige onafhankelijkheid.",
+          knowsAbout: [
+            "Sovereign cloud infrastructure",
+            "Data privacy",
+            "Swiss data residency",
+            "Self-hosted infrastructure",
+          ],
+          contactPoint: [
+            {
+              "@type": "ContactPoint",
+              contactType: "customer support",
+              email: "core@delplanche.cloud",
+              url: "https://delplanche.cloud/nl/contact",
+              availableLanguage: ["nl", "en", "fr"],
+            },
+            {
+              "@type": "ContactPoint",
+              contactType: "security",
+              email: "core@delplanche.cloud",
+              url: "https://delplanche.cloud/.well-known/security.txt",
+            },
+          ],
+        }),
+      },
     ],
   }),
 
