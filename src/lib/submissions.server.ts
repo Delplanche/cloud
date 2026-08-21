@@ -1,21 +1,20 @@
 import { z } from "zod";
 
+import {
+  CATEGORY_LABELS,
+  CONTACT_CATEGORIES,
+  type ContactCategory,
+} from "./contact-categories";
+
 export const INBOX_ADDRESS = "core@delplanche.cloud";
 export const DESK_ADDRESS = "desk@delplanche.cloud";
 
 export const localeSchema = z.enum(["en", "nl", "fr"]).default("en");
 
 /** Vier contactcategorieën — verplicht bij elke inzending. */
-export const CONTACT_CATEGORIES = ["infra", "design", "collab", "direct"] as const;
 export const contactCategorySchema = z.enum(CONTACT_CATEGORIES);
-export type ContactCategory = (typeof CONTACT_CATEGORIES)[number];
-
-export const CATEGORY_LABELS: Record<ContactCategory, string> = {
-  infra: "Infra & Cloud",
-  design: "Design & UI",
-  collab: "Samenwerking",
-  direct: "Direct / Overig",
-};
+export { CATEGORY_LABELS, CONTACT_CATEGORIES };
+export type { ContactCategory };
 
 export const infraRequestSchema = z.object({
   locale: localeSchema,

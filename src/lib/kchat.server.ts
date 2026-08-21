@@ -4,8 +4,7 @@
  */
 
 import { describeError, logMail } from "./mail-log.server";
-import type { ContactCategory } from "./submissions.server";
-import { CATEGORY_LABELS } from "./submissions.server";
+import { CATEGORY_LABELS, type ContactCategory } from "./contact-categories";
 
 export type ChatPayload = {
   category: ContactCategory;

@@ -10,7 +10,7 @@ const MUTED = "#6B6A65";
 const MOSS = "#2A4736";
 const LINE = "#E2DFD8";
 
-import { CATEGORY_LABELS, type ContactCategory } from "./submissions.server";
+import { CATEGORY_LABELS, type ContactCategory } from "./contact-categories";
 
 const MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
 const SERIF = "Georgia, 'Times New Roman', serif";
