@@ -30,7 +30,7 @@ export function BrandMark({ className }: { className?: string }) {
         src="/logo.png"
         alt="delplanche.cloud — Cloud Solutions"
         className="h-7 w-auto md:h-8"
-        width={702}
+        width={706}
         height={160}
       />
     </Link>
