@@ -1,0 +1,62 @@
+{
+  "source": "https://github.com/Delplanche/cloud.git",
+  "stack": "TanStack Start (React 19 + Tailwind CSS v4 + Vite 7)",
+  "capabilities": [
+    {
+      "capability": "Multi-language marketing site",
+      "source": "src/routes/$lang.*.tsx, src/i18n/*",
+      "outcome": "preserved",
+      "status": "complete",
+      "next_action": "Verify all locale routes render"
+    },
+    {
+      "capability": "Contact form",
+      "source": "src/routes/api/public/contact.ts, src/lib/submissions.functions.ts",
+      "outcome": "preserved",
+      "status": "complete",
+      "next_action": "Set SMTP and KCHAT secrets to enable live delivery"
+    },
+    {
+      "capability": "Onboarding / infrastructure request form",
+      "source": "src/components/pages/OnboardingPage.tsx, src/lib/submissions.functions.ts",
+      "outcome": "preserved",
+      "status": "complete",
+      "next_action": "Set SMTP secrets to enable live delivery"
+    },
+    {
+      "capability": "External Supabase integration",
+      "source": "src/integrations/supabase/*",
+      "outcome": "preserved",
+      "status": "pending_secrets",
+      "next_action": "Add VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY to Secrets; SUPABASE_URL and SUPABASE_PUBLISHABLE_KEY for server functions"
+    },
+    {
+      "capability": "SMTP email delivery",
+      "source": "src/lib/mailer.server.ts",
+      "outcome": "preserved",
+      "status": "pending_secrets",
+      "next_action": "Add SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, MAIL_FROM, MAIL_TO to Secrets"
+    },
+    {
+      "capability": "kChat webhook notification",
+      "source": "src/lib/kchat.server.ts",
+      "outcome": "preserved",
+      "status": "pending_secrets",
+      "next_action": "Add KCHAT_WEBHOOK_URL to Secrets"
+    },
+    {
+      "capability": "SEO / sitemap / affiliate redirects",
+      "source": "src/routes/sitemap[.]xml.ts, src/routes/go.$target.tsx, src/config/affiliates.ts",
+      "outcome": "preserved",
+      "status": "complete",
+      "next_action": "Verify sitemap.xml and /go/* redirects respond"
+    },
+    {
+      "capability": "Database records",
+      "source": "database-records/manifest.json",
+      "outcome": "not_applicable",
+      "status": "complete",
+      "next_action": "No records required — contact and onboarding forms are stateless (email/webhook only)"
+    }
+  ]
+}
