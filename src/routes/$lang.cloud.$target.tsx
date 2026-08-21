@@ -1,5 +1,12 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { cloudAlternateLinks, slugs, toLocale, type Locale } from "@/i18n/config";
+import {
+  SITE_URL,
+  cloudAlternateLinks,
+  cloudPath,
+  slugs,
+  toLocale,
+  type Locale,
+} from "@/i18n/config";
 import { getCloudDict, isCloudTarget, type CloudDict, type CloudEntry } from "@/i18n/cloud";
 import { externalLinkProps } from "@/lib/affiliate";
 import { Arrow, PageShellLite, SectionTitle, actionClass } from "@/components/site/Layout";
@@ -22,6 +29,7 @@ export const Route = createFileRoute("/$lang/cloud/$target")({
         { name: "description", content: entry.metaDescription },
         { property: "og:title", content: entry.metaTitle },
         { property: "og:description", content: entry.metaDescription },
+        { property: "og:url", content: `${SITE_URL}${cloudPath(locale, params.target)}` },
       ],
       links: cloudAlternateLinks(locale, params.target),
     };

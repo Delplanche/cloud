@@ -23,6 +23,13 @@ const REQUIRED_ASSETS = [
   "public/favicon.png",
   "public/apple-touch-icon.png",
   "public/og-image.jpg",
+  "public/icon-192.png",
+  "public/icon-512.png",
+  "public/manifest.json",
+  "public/fonts/inter-latin.woff2",
+  "public/fonts/instrument-serif-latin.woff2",
+  "public/fonts/jetbrains-mono-latin.woff2",
+  "public/fonts/caveat-latin.woff2",
 ];
 
 const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
@@ -95,6 +102,18 @@ for (const banned of BANNED) {
 
 for (const [name, rel] of missing) {
   errors.push(`Ontbrekend npm-pakket "${name}" (geïmporteerd in ${rel}) — voeg het toe met bun add`);
+}
+
+// Manifest-iconen moeten fysiek bestaan, anders faalt de PWA-installatie stil.
+const manifestPath = join(ROOT, "public/manifest.json");
+if (existsSync(manifestPath)) {
+  /** @type {{ icons?: { src: string }[] }} */
+  const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+  for (const icon of manifest.icons ?? []) {
+    if (!existsSync(join(ROOT, "public", icon.src.replace(/^\//, "")))) {
+      errors.push(`manifest.json verwijst naar ontbrekend icoon: ${icon.src}`);
+    }
+  }
 }
 
 for (const asset of REQUIRED_ASSETS) {
