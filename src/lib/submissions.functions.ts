@@ -28,7 +28,7 @@ export const submitInfraRequest = createServerFn({ method: "POST" })
   });
 
 export const submitContactMessage = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => contactMessageSchema.parse(data))
+  .validator((data: unknown) => contactMessageSchema.parse(data))
   .handler(async ({ data }) => {
     const { sendDeskMail } = await import("./mailer.server");
     const { contactEmail, contactReceiptEmail } = await import("./mail-templates.server");
