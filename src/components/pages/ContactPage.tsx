@@ -138,7 +138,7 @@ export function ContactPage({ t }: { t: Dict }) {
                         onClick={() => setCategory(key)}
                         className={`inline-flex min-h-11 items-center rounded-full border px-4 font-mono text-[10px] tracking-[0.16em] uppercase transition-colors focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-moss ${
                           active
-                            ? "border-ebony bg-ebony text-card"
+                            ? "border-ebony bg-ebony text-canvas"
                             : "border-gridline-strong bg-transparent text-muted-ink hover:border-ebony hover:text-ebony"
                         }`}
                       >
