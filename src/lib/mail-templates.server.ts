@@ -78,13 +78,16 @@ export function shell(opts: {
 }
 
 export function contactEmail(data: {
+  category: ContactCategory;
   name: string;
   email: string;
   subject: string;
   message: string;
   locale: string;
 }) {
+  const label = CATEGORY_LABELS[data.category];
   const rows: [string, string][] = [
+    ["Categorie", label],
     ["Naam", data.name],
     ["E-mail", data.email],
     ["Onderwerp", data.subject],
@@ -93,9 +96,10 @@ export function contactEmail(data: {
   ];
 
   return {
-    subject: `[Inzending] ${data.subject} - ${data.name}`,
+    subject: `[Inzending - ${label}] ${data.name}`,
     html: shell({
       eyebrow: "Contactformulier / delplanche.cloud",
+      banner: label,
       title: "Nieuw bericht ontvangen",
       intro: "Een bezoeker heeft het beveiligde contactformulier ingevuld.",
       rows,
@@ -103,13 +107,14 @@ export function contactEmail(data: {
       footer: "delplanche.cloud — sovereign swiss stack",
     }),
     text: [
-      "Nieuw contactbericht — delplanche.cloud",
+      `Nieuw contactbericht [${label}] — delplanche.cloud`,
       ...rows.map(([l, v]) => `${l}: ${v}`),
       "",
       data.message,
     ].join("\n"),
   };
 }
+
 
 const RECEIPT_COPY = {
   en: {
