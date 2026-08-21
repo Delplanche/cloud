@@ -10,6 +10,8 @@ const MUTED = "#6B6A65";
 const MOSS = "#2A4736";
 const LINE = "#E2DFD8";
 
+import { CATEGORY_LABELS, type ContactCategory } from "./submissions.server";
+
 const MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
 const SERIF = "Georgia, 'Times New Roman', serif";
 const SANS = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif";
@@ -32,6 +34,7 @@ function row(label: string, value: string) {
 
 export function shell(opts: {
   eyebrow: string;
+  banner?: string;
   title: string;
   intro: string;
   rows: [string, string][];
@@ -58,6 +61,11 @@ export function shell(opts: {
             <td style="width:34px;height:34px;background:${INK};border-radius:10px;text-align:center;vertical-align:middle;font-family:${SERIF};font-size:17px;line-height:34px;color:${CANVAS};">D</td>
             <td style="padding-left:12px;font-family:${MONO};font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:${MUTED};">delplanche.cloud</td>
           </tr></table>
+          ${
+            opts.banner
+              ? `<div style="margin-top:22px;display:inline-block;padding:7px 14px;border:1px solid ${LINE};border-radius:999px;background:${CANVAS};font-family:${MONO};font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:${MOSS};">${esc(opts.banner)}</div>`
+              : ""
+          }
           <div style="margin-top:24px;font-family:${MONO};font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:${MUTED};">${esc(opts.eyebrow)}</div>
           <h1 style="margin:16px 0 0 0;font-family:${SERIF};font-weight:400;font-size:28px;line-height:1.15;color:${INK};">${esc(opts.title)}</h1>
           <div style="height:2px;width:120px;margin-top:14px;background:${MOSS};opacity:.28;border-radius:999px;"></div>
