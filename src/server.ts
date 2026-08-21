@@ -35,6 +35,20 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   });
 }
 
+function withAssetCaching(request: Request, response: Response): Response {
+  const pathname = new URL(request.url).pathname;
+  const immutableAsset = pathname.startsWith("/assets/") || pathname.startsWith("/fonts/");
+  if (!immutableAsset) return response;
+
+  const headers = new Headers(response.headers);
+  headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 function isH3SwallowedErrorBody(body: string): boolean {
   try {
     const payload = JSON.parse(body) as { unhandled?: unknown; message?: unknown };
@@ -49,7 +63,8 @@ export default {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      const normalized = await normalizeCatastrophicSsrResponse(response);
+      return withAssetCaching(request, normalized);
     } catch (error) {
       console.error(error);
       return new Response(renderErrorPage(), {
