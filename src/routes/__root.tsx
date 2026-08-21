@@ -137,6 +137,53 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "icon", type: "image/png", href: "/favicon.png" },
       { rel: "shortcut icon", type: "image/png", href: "/favicon.png" },
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180" },
+      { rel: "icon", type: "image/png", href: "/icon-192.png", sizes: "192x192" },
+      { rel: "icon", type: "image/png", href: "/icon-512.png", sizes: "512x512" },
+      { rel: "manifest", href: "/manifest.json" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "@id": "https://delplanche.cloud/#organization",
+          name: "delplanche.cloud",
+          alternateName: "Delplanche Cloud Solutions",
+          url: "https://delplanche.cloud",
+          logo: {
+            "@type": "ImageObject",
+            url: "https://delplanche.cloud/logo.png",
+            width: 702,
+            height: 160,
+          },
+          image: "https://delplanche.cloud/og-image.jpg",
+          description:
+            "Sovereign Cloud Architecture — gecureerde Zwitserse cloudinfrastructuur met FADP-bescherming en 100% hernieuwbare energie.",
+          slogan: "Absolute datasoevereiniteit, ontworpen voor volledige onafhankelijkheid.",
+          knowsAbout: [
+            "Sovereign cloud infrastructure",
+            "Data privacy",
+            "Swiss data residency",
+            "Self-hosted infrastructure",
+          ],
+          contactPoint: [
+            {
+              "@type": "ContactPoint",
+              contactType: "customer support",
+              email: "core@delplanche.cloud",
+              url: "https://delplanche.cloud/nl/contact",
+              availableLanguage: ["nl", "en", "fr"],
+            },
+            {
+              "@type": "ContactPoint",
+              contactType: "security",
+              email: "core@delplanche.cloud",
+              url: "https://delplanche.cloud/.well-known/security.txt",
+            },
+          ],
+        }),
+      },
     ],
   }),
 
