@@ -1,44 +1,45 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
-const payloadSchema = z.object({
-  name: z.string().trim().min(2).max(120),
-  email: z.string().trim().email().max(200),
-  subject: z.string().trim().min(2).max(200),
-  message: z.string().trim().min(10).max(5000),
-  locale: z.enum(["en", "nl", "fr"]).default("en"),
+import {
+  checkRateLimit,
+  clientIp,
+  detectSpam,
+  fingerprint,
+  recallIdempotent,
+  rememberIdempotent,
+} from "@/lib/anti-abuse.server";
+import { logMail, newRequestId } from "@/lib/mail-log.server";
+import { contactMessageSchema, DESK_ADDRESS } from "@/lib/submissions.server";
+
+const payloadSchema = contactMessageSchema.extend({
   // Honeypot: moet leeg blijven — bots vullen dit in.
   company: z.string().max(200).optional(),
 });
 
-const WINDOW_MS = 10 * 60 * 1000;
-const MAX_PER_WINDOW = 3;
-const hits = new Map<string, number[]>();
-
-function rateLimited(ip: string) {
-  const now = Date.now();
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < WINDOW_MS);
-  if (recent.length >= MAX_PER_WINDOW) {
-    hits.set(ip, recent);
-    return true;
-  }
-  recent.push(now);
-  hits.set(ip, recent);
-  if (hits.size > 5000) hits.clear();
-  return false;
-}
+type ContactResponse = {
+  ok: true;
+  email: boolean;
+  receipt: boolean;
+  chat: boolean;
+  messageId: string | null;
+  idempotencyKey: string;
+  replay?: boolean;
+};
 
 export const Route = createFileRoute("/api/public/contact")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const ip =
-          request.headers.get("cf-connecting-ip") ??
-          request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-          "unknown";
+        const requestId = newRequestId();
+        const ip = clientIp(request);
 
-        if (rateLimited(ip)) {
-          return Response.json({ error: "rate_limited" }, { status: 429 });
+        const limit = checkRateLimit(`contact:${ip}`);
+        if (!limit.ok && limit.reason === "rate_limited") {
+          return Response.json(
+            { error: "rate_limited", retryAfterSeconds: limit.retryAfterSeconds },
+            { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } },
+          );
         }
 
         let raw: unknown;
@@ -55,7 +56,28 @@ export const Route = createFileRoute("/api/public/contact")({
 
         const { company, ...data } = parsed.data;
         // Honeypot ingevuld → stilzwijgend accepteren, niets doorsturen.
-        if (company) return Response.json({ ok: true });
+        if (company) {
+          logMail({ kind: "skipped", channel: "desk", reason: "spam_detected", requestId });
+          return Response.json({ ok: true, email: false, receipt: false, chat: false });
+        }
+
+        const spamSignal = detectSpam([data.name, data.subject, data.message]);
+        if (spamSignal) {
+          logMail({ kind: "skipped", channel: "desk", reason: "spam_detected", requestId });
+          return Response.json({ error: "spam_detected", signal: spamSignal }, { status: 422 });
+        }
+
+        // Idempotency: dezelfde inzending binnen het TTL-venster stuurt geen
+        // tweede mail naar de desk of de klant — het eerste resultaat keert terug.
+        const idempotencyKey =
+          request.headers.get("idempotency-key")?.slice(0, 120) ||
+          fingerprint([data.email, data.category, data.subject, data.message]);
+
+        const replayed = recallIdempotent<ContactResponse>(idempotencyKey);
+        if (replayed) {
+          logMail({ kind: "skipped", channel: "desk", reason: "idempotent_replay", requestId });
+          return Response.json({ ...replayed, replay: true });
+        }
 
         // Stateless: geen opslag. Kanalen parallel — desk-notificatie,
         // auto-responder naar de indiener én de kChat-webhook.
@@ -68,33 +90,46 @@ export const Route = createFileRoute("/api/public/contact")({
         const [mailResult, receiptResult, chatResult] = await Promise.all([
           // Admin: Reply-To wijst naar de indiener voor één-klik antwoorden.
           sendDeskMail({
-            to: "desk@delplanche.cloud",
+            to: DESK_ADDRESS,
             subject: mail.subject,
             html: mail.html,
             text: mail.text,
             replyTo: data.email,
+            channel: "desk",
+            requestId,
+            idempotencyKey,
           }),
           sendDeskMail({
             to: data.email,
             subject: receipt.subject,
             html: receipt.html,
             text: receipt.text,
-            replyTo: "desk@delplanche.cloud",
+            replyTo: DESK_ADDRESS,
+            channel: "receipt",
+            requestId,
+            idempotencyKey,
           }),
-          sendChatNotification(data),
+          sendChatNotification({ ...data, requestId }),
         ]);
 
         if (!mailResult.sent) {
-          console.error("[system] desk_mail_failed");
-          return Response.json({ error: "mail_failed" }, { status: 502 });
+          return Response.json(
+            { error: "mail_failed", code: mailResult.errorCode ?? "unknown", requestId },
+            { status: 502 },
+          );
         }
 
-        return Response.json({
+        const result: ContactResponse = {
           ok: true,
           email: mailResult.sent,
           receipt: receiptResult.sent,
           chat: chatResult.sent,
-        });
+          messageId: mailResult.messageId,
+          idempotencyKey,
+        };
+        rememberIdempotent(idempotencyKey, result);
+
+        return Response.json(result);
       },
     },
   },
