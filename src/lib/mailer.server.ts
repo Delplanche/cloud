@@ -186,7 +186,9 @@ export async function sendDeskMail(payload: MailPayload): Promise<MailResult> {
 
     return { sent: true, messageId: info.messageId ?? messageId ?? null };
   } catch (error) {
-    // Enkel systeem-events loggen — nooit ontvanger, inhoud of credentials.
+    // Ruwe fout naar de runtime-logs: SMTP-weigeringen zijn anders onzichtbaar.
+    console.error("SMTP Error:", error);
+    // Gestructureerd loggen: enkel systeem-events — nooit inhoud of credentials.
     const described = describeError(error);
     logMail({
       kind: "failed",
