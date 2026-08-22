@@ -44,10 +44,11 @@ type SmtpConfig = {
 
 function readConfig(): SmtpConfig | null {
   const host = process.env["SMTP_HOST"];
-  const port = Number(process.env["SMTP_PORT"] ?? "587");
+  // Poort altijd expliciet als geheel getal — een string breekt de TLS-keuze.
+  const port = parseInt(process.env["SMTP_PORT"] || "465", 10);
   const user = process.env["SMTP_USER"];
   const pass = process.env["SMTP_PASS"];
-  if (!host || !user || !pass || !Number.isFinite(port)) return null;
+  if (!host || !user || !pass || !Number.isInteger(port)) return null;
   return {
     host,
     port,
@@ -56,6 +57,54 @@ function readConfig(): SmtpConfig | null {
     from: process.env["MAIL_FROM"] ?? user,
     to: process.env["MAIL_TO"] ?? user,
   };
+}
+
+/**
+ * Transport voor Infomaniak (mail.infomaniak.com):
+ *   poort 465 -> secure: true  (impliciete SSL/TLS)
+ *   poort 587 -> secure: false (STARTTLS, via requireTLS afgedwongen)
+ * Pure Node.js/nodemailer — geen platform-specifieke API's.
+ */
+async function createTransport(config: SmtpConfig) {
+  const nodemailer = (await import("nodemailer")).default;
+  const secure = config.port === 465;
+  return nodemailer.createTransport({
+    host: config.host,
+    port: config.port,
+    secure,
+    requireTLS: !secure,
+    auth: { user: config.user, pass: config.pass },
+    tls: { rejectUnauthorized: true, minVersion: "TLSv1.2" },
+  });
+}
+
+/** Actieve gezondheidscheck: opent een SMTP-sessie zonder mail te sturen. */
+export async function verifySmtpConnection(): Promise<{
+  ok: boolean;
+  configured: boolean;
+  host?: string;
+  port?: number;
+  secure?: boolean;
+  errorMessage?: string;
+}> {
+  const config = readConfig();
+  if (!config) return { ok: false, configured: false };
+  try {
+    const transport = await createTransport(config);
+    await transport.verify();
+    transport.close();
+    return { ok: true, configured: true, host: config.host, port: config.port, secure: config.port === 465 };
+  } catch (error) {
+    console.error("SMTP Error:", error);
+    return {
+      ok: false,
+      configured: true,
+      host: config.host,
+      port: config.port,
+      secure: config.port === 465,
+      errorMessage: describeError(error).errorMessage,
+    };
+  }
 }
 
 /** Deterministische Message-ID zodat dezelfde inzending nooit twee
