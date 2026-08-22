@@ -161,14 +161,7 @@ export async function sendDeskMail(payload: MailPayload): Promise<MailResult> {
   }
 
   try {
-    const nodemailer = (await import("nodemailer")).default;
-    const transport = nodemailer.createTransport({
-      host: config.host,
-      port: config.port,
-      secure: config.port === 465,
-      requireTLS: config.port !== 465,
-      auth: { user: config.user, pass: config.pass },
-    });
+    const transport = await createTransport(config);
 
     const messageId = buildMessageId(payload);
     const info = await transport.sendMail({
