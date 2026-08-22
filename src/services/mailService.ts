@@ -7,7 +7,14 @@
  */
 
 import { sendDeskMail, verifySmtpConnection, type MailResult } from "@/lib/mailer.server";
-import { DESK_ADDRESS, type ContactMessage, type InfraRequest } from "@/lib/submissions.server";
+import {
+  DESK_ADDRESS,
+  type ContactMessage,
+  type infraRequestSchema,
+} from "@/lib/submissions.server";
+import type { z } from "zod";
+
+export type InfraRequest = z.infer<typeof infraRequestSchema>;
 
 export type DeliveryContext = { requestId: string; idempotencyKey: string };
 
