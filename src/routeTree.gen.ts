@@ -19,6 +19,7 @@ import { Route as GoTargetRouteImport } from './routes/go.$target'
 import { Route as LangCloudIndexRouteImport } from './routes/$lang.cloud.index'
 import { Route as LangCloudTargetRouteImport } from './routes/$lang.cloud.$target'
 import { Route as ApiPublicContactRouteImport } from './routes/api/public/contact'
+import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiPublicMailSelftestRouteImport } from './routes/api/public/mail-selftest'
 
 const IndexRoute = IndexRouteImport.update({
@@ -71,6 +72,11 @@ const ApiPublicContactRoute = ApiPublicContactRouteImport.update({
   path: '/api/public/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
+  id: '/api/public/health',
+  path: '/api/public/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicMailSelftestRoute = ApiPublicMailSelftestRouteImport.update({
   id: '/api/public/mail-selftest',
   path: '/api/public/mail-selftest',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/$lang/': typeof LangIndexRoute
   '/$lang/cloud/$target': typeof LangCloudTargetRoute
   '/api/public/contact': typeof ApiPublicContactRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/mail-selftest': typeof ApiPublicMailSelftestRoute
   '/$lang/cloud/': typeof LangCloudIndexRoute
 }
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/$lang': typeof LangIndexRoute
   '/$lang/cloud/$target': typeof LangCloudTargetRoute
   '/api/public/contact': typeof ApiPublicContactRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/mail-selftest': typeof ApiPublicMailSelftestRoute
   '/$lang/cloud': typeof LangCloudIndexRoute
 }
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/$lang/': typeof LangIndexRoute
   '/$lang/cloud/$target': typeof LangCloudTargetRoute
   '/api/public/contact': typeof ApiPublicContactRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/mail-selftest': typeof ApiPublicMailSelftestRoute
   '/$lang/cloud/': typeof LangCloudIndexRoute
 }
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/$lang/'
     | '/$lang/cloud/$target'
     | '/api/public/contact'
+    | '/api/public/health'
     | '/api/public/mail-selftest'
     | '/$lang/cloud/'
   fileRoutesByTo: FileRoutesByTo
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/$lang'
     | '/$lang/cloud/$target'
     | '/api/public/contact'
+    | '/api/public/health'
     | '/api/public/mail-selftest'
     | '/$lang/cloud'
   id:
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/$lang/'
     | '/$lang/cloud/$target'
     | '/api/public/contact'
+    | '/api/public/health'
     | '/api/public/mail-selftest'
     | '/$lang/cloud/'
   fileRoutesById: FileRoutesById
@@ -164,6 +176,7 @@ export interface RootRouteChildren {
   CloudTargetRoute: typeof CloudTargetRoute
   GoTargetRoute: typeof GoTargetRoute
   ApiPublicContactRoute: typeof ApiPublicContactRoute
+  ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicMailSelftestRoute: typeof ApiPublicMailSelftestRoute
 }
 
@@ -239,6 +252,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicContactRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/health': {
+      id: '/api/public/health'
+      path: '/api/public/health'
+      fullPath: '/api/public/health'
+      preLoaderRoute: typeof ApiPublicHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/mail-selftest': {
       id: '/api/public/mail-selftest'
       path: '/api/public/mail-selftest'
@@ -272,6 +292,7 @@ const rootRouteChildren: RootRouteChildren = {
   CloudTargetRoute: CloudTargetRoute,
   GoTargetRoute: GoTargetRoute,
   ApiPublicContactRoute: ApiPublicContactRoute,
+  ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicMailSelftestRoute: ApiPublicMailSelftestRoute,
 }
 export const routeTree = rootRouteImport

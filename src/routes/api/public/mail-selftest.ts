@@ -20,6 +20,9 @@ import { checkRateLimit, clientIp } from "@/lib/anti-abuse.server";
 import { logMail, newRequestId } from "@/lib/mail-log.server";
 import { DESK_ADDRESS } from "@/lib/submissions.server";
 
+// Node.js-runtime verplicht: SMTP vereist TCP-sockets.
+export const runtime = "nodejs";
+
 const bodySchema = z.object({
   to: z.string().trim().email().max(200),
   locale: z.enum(["en", "nl", "fr"]).default("nl"),

@@ -10,7 +10,10 @@ import {
   rememberIdempotent,
 } from "@/lib/anti-abuse.server";
 import { logMail, newRequestId } from "@/lib/mail-log.server";
-import { contactMessageSchema, DESK_ADDRESS } from "@/lib/submissions.server";
+import { contactMessageSchema } from "@/lib/submissions.server";
+
+// Node.js-runtime verplicht: nodemailer heeft TCP-sockets nodig (geen Edge).
+export const runtime = "nodejs";
 
 const payloadSchema = contactMessageSchema.extend({
   // Honeypot: moet leeg blijven — bots vullen dit in.
@@ -79,38 +82,17 @@ export const Route = createFileRoute("/api/public/contact")({
           return Response.json({ ...replayed, replay: true });
         }
 
-        // Stateless: geen opslag. Kanalen parallel — desk-notificatie,
-        // auto-responder naar de indiener én de kChat-webhook.
-        const { sendDeskMail } = await import("@/lib/mailer.server");
-        const { contactEmail, contactReceiptEmail } = await import("@/lib/mail-templates.server");
-        const { sendChatNotification } = await import("@/lib/kchat.server");
-        const mail = contactEmail(data);
-        const receipt = contactReceiptEmail(data);
+        // Stateless: geen opslag. Alle netwerktaken lopen via de service-laag:
+        // mailService (SMTP) en chatService (webhook).
+        const { deliverContactMessage } = await import("@/services/mailService");
+        const { notifyChat } = await import("@/services/chatService");
 
-        const [mailResult, receiptResult, chatResult] = await Promise.all([
-          // Admin: Reply-To wijst naar de indiener voor één-klik antwoorden.
-          sendDeskMail({
-            to: DESK_ADDRESS,
-            subject: mail.subject,
-            html: mail.html,
-            text: mail.text,
-            replyTo: data.email,
-            channel: "desk",
-            requestId,
-            idempotencyKey,
-          }),
-          sendDeskMail({
-            to: data.email,
-            subject: receipt.subject,
-            html: receipt.html,
-            text: receipt.text,
-            replyTo: DESK_ADDRESS,
-            channel: "receipt",
-            requestId,
-            idempotencyKey,
-          }),
-          sendChatNotification({ ...data, requestId }),
+        const [delivery, chatResult] = await Promise.all([
+          deliverContactMessage(data, { requestId, idempotencyKey }),
+          notifyChat({ ...data, requestId }),
         ]);
+        const mailResult = delivery.desk;
+        const receiptResult = delivery.receipt;
 
         if (!mailResult.sent) {
           return Response.json(

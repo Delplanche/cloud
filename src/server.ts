@@ -1,11 +1,16 @@
 import "./lib/error-capture";
 
+import { validateEnv } from "./lib/env.server";
+
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
+
+// Startup-validatie: één duidelijke regel in de logs zodra de server boot.
+validateEnv({ strict: false });
 
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 
