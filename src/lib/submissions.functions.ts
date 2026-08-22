@@ -1,10 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import {
-  DESK_ADDRESS,
-  contactMessageSchema,
-  infraRequestSchema,
-  makeTicket,
-} from "./submissions.server";
+import { contactMessageSchema, infraRequestSchema, makeTicket } from "./submissions.server";
 
 export const submitInfraRequest = createServerFn({ method: "POST" })
   .validator((data: unknown) => infraRequestSchema.parse(data))
@@ -13,17 +8,9 @@ export const submitInfraRequest = createServerFn({ method: "POST" })
     // Honeypot ingevuld: bots krijgen een plausibel antwoord, zonder notificatie.
     if (data.company) return { ticket, queue: 1 };
 
-    const { sendDeskMail } = await import("./mailer.server");
-    const { infraRequestEmail } = await import("./mail-templates.server");
-    const mail = infraRequestEmail({ ...data, ticket, notes: data.notes || undefined });
-    await sendDeskMail({
-      channel: "desk",
-      to: DESK_ADDRESS,
-      subject: mail.subject,
-      html: mail.html,
-      text: mail.text,
-      replyTo: data.email,
-    });
+    const { deliverInfraRequest } = await import("@/services/mailService");
+    const { newRequestId } = await import("./mail-log.server");
+    await deliverInfraRequest(data, ticket, { requestId: newRequestId() });
 
     return { ticket, queue: 1 };
   });
@@ -31,8 +18,7 @@ export const submitInfraRequest = createServerFn({ method: "POST" })
 export const submitContactMessage = createServerFn({ method: "POST" })
   .validator((data: unknown) => contactMessageSchema.parse(data))
   .handler(async ({ data }) => {
-    const { sendDeskMail } = await import("./mailer.server");
-    const { contactEmail, contactReceiptEmail } = await import("./mail-templates.server");
+    const { deliverContactMessage } = await import("@/services/mailService");
     const { fingerprint, recallIdempotent, rememberIdempotent, detectSpam } = await import(
       "./anti-abuse.server"
     );
@@ -52,44 +38,21 @@ export const submitContactMessage = createServerFn({ method: "POST" })
       return { ...replayed, replay: true };
     }
 
-    const mail = contactEmail(data);
-    const receipt = contactReceiptEmail(data);
-
-    const [desk, client] = await Promise.all([
-      sendDeskMail({
-        to: DESK_ADDRESS,
-        subject: mail.subject,
-        html: mail.html,
-        text: mail.text,
-        replyTo: data.email,
-        channel: "desk",
-        requestId,
-        idempotencyKey,
-      }),
-      sendDeskMail({
-        to: data.email,
-        subject: receipt.subject,
-        html: receipt.html,
-        text: receipt.text,
-        replyTo: DESK_ADDRESS,
-        channel: "receipt",
-        requestId,
-        idempotencyKey,
-      }),
-    ]);
-
-    const result = { received: desk.sent, receipt: client.sent };
-    if (desk.sent) rememberIdempotent(idempotencyKey, result);
+    const delivery = await deliverContactMessage(data, { requestId, idempotencyKey });
+    const result = { received: delivery.desk.sent, receipt: delivery.receipt.sent };
+    if (delivery.desk.sent) rememberIdempotent(idempotencyKey, result);
     return { ...result, replay: false };
   });
 
 export const getSystemStatus = createServerFn({ method: "GET" }).handler(async () => {
-  // Stateless architectuur: geen database-probe meer. We meten de round-trip
-  // van de serverless functie zelf als gezondheidsindicator.
+  // Stateless architectuur: geen database-probe. De statusbalk leest de
+  // gezondheid van de mail- en webhookketen via de service-laag.
   const started = Date.now();
-  await Promise.resolve();
+  const { checkMailTransport } = await import("@/services/mailService");
+  const { checkChatWebhook } = await import("@/services/chatService");
+  const [smtp, chat] = [await checkMailTransport(), checkChatWebhook()];
   return {
-    operational: true,
+    operational: smtp.ok && chat.ok,
     latencyMs: Math.max(1, Date.now() - started),
     region: "Genève — CH (Tier 3+)",
     checkedAt: new Date().toISOString(),
