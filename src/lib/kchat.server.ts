@@ -39,24 +39,22 @@ export async function sendChatNotification(
   }
 
   const label = CATEGORY_LABELS[data.category];
+  // kChat (Mattermost-compatibel) verwacht een `text`-veld met Markdown.
   const body = {
+    username: "delplanche.cloud",
     text: [
       `**[${sanitize(label)}] Nieuw contactbericht — delplanche.cloud (${data.locale.toUpperCase()})**`,
-      `**Naam:** ${sanitize(data.name)}`,
-      `**E-mail:** ${sanitize(data.email)}`,
-      `**Onderwerp:** ${sanitize(data.subject)}`,
       "",
-      sanitize(snippet(data.message)),
+      `| | |`,
+      `|---|---|`,
+      `| **Naam** | ${sanitize(data.name)} |`,
+      `| **E-mail** | ${sanitize(data.email)} |`,
+      `| **Onderwerp** | ${sanitize(data.subject)} |`,
+      "",
+      `> ${sanitize(snippet(data.message))}`,
+      "",
+      `_ref ${sanitize(requestId)}_`,
     ].join("\n"),
-    // Gestructureerde velden naast de tekst, voor eventuele automatisering.
-    category: data.category,
-    category_label: label,
-    name: data.name,
-    email: data.email,
-    subject: data.subject,
-    snippet: snippet(data.message),
-    locale: data.locale,
-    request_id: requestId,
   } satisfies Record<string, unknown>;
 
   const started = Date.now();

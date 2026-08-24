@@ -14,6 +14,7 @@ import { Route as LangRouteImport } from './routes/$lang'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as LangIndexRouteImport } from './routes/$lang.index'
 import { Route as LangSlugRouteImport } from './routes/$lang.$slug'
+import { Route as ApiContactRouteImport } from './routes/api/contact'
 import { Route as CloudTargetRouteImport } from './routes/cloud.$target'
 import { Route as GoTargetRouteImport } from './routes/go.$target'
 import { Route as LangCloudIndexRouteImport } from './routes/$lang.cloud.index'
@@ -46,6 +47,11 @@ const LangSlugRoute = LangSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
   getParentRoute: () => LangRoute,
+} as any)
+const ApiContactRoute = ApiContactRouteImport.update({
+  id: '/api/contact',
+  path: '/api/contact',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CloudTargetRoute = CloudTargetRouteImport.update({
   id: '/cloud/$target',
@@ -88,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/$lang': typeof LangRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang/$slug': typeof LangSlugRoute
+  '/api/contact': typeof ApiContactRoute
   '/cloud/$target': typeof CloudTargetRoute
   '/go/$target': typeof GoTargetRoute
   '/$lang/': typeof LangIndexRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang/$slug': typeof LangSlugRoute
+  '/api/contact': typeof ApiContactRoute
   '/cloud/$target': typeof CloudTargetRoute
   '/go/$target': typeof GoTargetRoute
   '/$lang': typeof LangIndexRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/$lang': typeof LangRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/$lang/$slug': typeof LangSlugRoute
+  '/api/contact': typeof ApiContactRoute
   '/cloud/$target': typeof CloudTargetRoute
   '/go/$target': typeof GoTargetRoute
   '/$lang/': typeof LangIndexRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/$lang'
     | '/sitemap.xml'
     | '/$lang/$slug'
+    | '/api/contact'
     | '/cloud/$target'
     | '/go/$target'
     | '/$lang/'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
     | '/'
     | '/sitemap.xml'
     | '/$lang/$slug'
+    | '/api/contact'
     | '/cloud/$target'
     | '/go/$target'
     | '/$lang'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '/$lang'
     | '/sitemap.xml'
     | '/$lang/$slug'
+    | '/api/contact'
     | '/cloud/$target'
     | '/go/$target'
     | '/$lang/'
@@ -173,6 +185,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LangRoute: typeof LangRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiContactRoute: typeof ApiContactRoute
   CloudTargetRoute: typeof CloudTargetRoute
   GoTargetRoute: typeof GoTargetRoute
   ApiPublicContactRoute: typeof ApiPublicContactRoute
@@ -216,6 +229,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$lang/$slug'
       preLoaderRoute: typeof LangSlugRouteImport
       parentRoute: typeof LangRoute
+    }
+    '/api/contact': {
+      id: '/api/contact'
+      path: '/api/contact'
+      fullPath: '/api/contact'
+      preLoaderRoute: typeof ApiContactRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/cloud/$target': {
       id: '/cloud/$target'
@@ -289,6 +309,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LangRoute: LangRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiContactRoute: ApiContactRoute,
   CloudTargetRoute: CloudTargetRoute,
   GoTargetRoute: GoTargetRoute,
   ApiPublicContactRoute: ApiPublicContactRoute,
