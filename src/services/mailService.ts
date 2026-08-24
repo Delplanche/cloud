@@ -29,9 +29,12 @@ export async function deliverContactMessage(
   const mail = contactEmail(data);
   const receipt = contactReceiptEmail(data);
 
+  // Ontvanger komt uit de omgeving (MAIL_TO); DESK_ADDRESS is enkel fallback.
+  const owner = process.env["MAIL_TO"] || DESK_ADDRESS;
+
   const [desk, client] = await Promise.all([
     sendDeskMail({
-      to: DESK_ADDRESS,
+      to: owner,
       subject: mail.subject,
       html: mail.html,
       text: mail.text,

@@ -1,9 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 
-// Node.js-runtime verplicht: nodemailer heeft TCP-sockets nodig (geen Edge).
+/**
+ * Alias voor /api/public/contact — zelfde stateless intake, zodat externe
+ * integraties of oudere formulieren op /api/contact blijven werken.
+ */
 export const runtime = "nodejs";
 
-export const Route = createFileRoute("/api/public/contact")({
+export const Route = createFileRoute("/api/contact")({
   server: {
     handlers: {
       POST: async ({ request }) => {
