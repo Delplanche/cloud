@@ -102,9 +102,11 @@ export function contactEmail(data: {
   subject: string;
   message: string;
   locale: string;
+  reference?: string;
 }) {
   const label = CATEGORY_LABELS[data.category];
   const rows: [string, string][] = [
+    ...(data.reference ? ([["Referentie", data.reference]] as [string, string][]) : []),
     ["Categorie", label],
     ["Naam", data.name],
     ["E-mail", data.email],
@@ -114,14 +116,19 @@ export function contactEmail(data: {
   ];
 
   return {
-    subject: `[Inzending - ${label}] ${data.name}`,
+    subject: `[Inzending - ${label}] ${data.subject}`,
     html: shell({
+      preheader: `${data.name} — ${data.subject}`,
       eyebrow: "Contactformulier / delplanche.cloud",
       banner: label,
       title: "Nieuw bericht ontvangen",
       intro: "Een bezoeker heeft het beveiligde contactformulier ingevuld.",
       rows,
       body: { label: "Bericht", content: data.message },
+      cta: {
+        label: "Direct antwoorden",
+        href: `mailto:${data.email}?subject=${encodeURIComponent(`Re: ${data.subject}`)}`,
+      },
       footer: "delplanche.cloud — sovereign swiss stack",
     }),
     text: [
@@ -140,8 +147,10 @@ const RECEIPT_COPY = {
     title: "Thank you — your message is logged",
     intro:
       "Your message reached the infrastructure desk. A human reads it; you can expect a reply within one working day.",
-    rows: { name: "Name", subject: "Subject", received: "Received" },
+    rows: { name: "Name", subject: "Subject", received: "Received", category: "Topic", reference: "Reference" },
     body: "Your message",
+    cta: "Visit delplanche.cloud",
+    preheader: "We received your message — a human will reply within one working day.",
     footer: "delplanche.cloud — no tracking pixels, no profiling",
   },
   nl: {
@@ -149,8 +158,10 @@ const RECEIPT_COPY = {
     title: "Bedankt — uw bericht is geregistreerd",
     intro:
       "Uw bericht bereikte de infrastructuurdesk. Een mens leest het; u mag een antwoord verwachten binnen één werkdag.",
-    rows: { name: "Naam", subject: "Onderwerp", received: "Ontvangen" },
+    rows: { name: "Naam", subject: "Onderwerp", received: "Ontvangen", category: "Onderwerp-categorie", reference: "Referentie" },
     body: "Uw bericht",
+    cta: "Bezoek delplanche.cloud",
+    preheader: "We ontvingen uw bericht — een mens antwoordt binnen één werkdag.",
     footer: "delplanche.cloud — geen trackingpixels, geen profilering",
   },
   fr: {
@@ -158,8 +169,10 @@ const RECEIPT_COPY = {
     title: "Merci — votre message est enregistré",
     intro:
       "Votre message est arrivé au bureau d'infrastructure. Un humain le lit ; réponse sous un jour ouvrable.",
-    rows: { name: "Nom", subject: "Objet", received: "Reçu" },
+    rows: { name: "Nom", subject: "Objet", received: "Reçu", category: "Catégorie", reference: "Référence" },
     body: "Votre message",
+    cta: "Visiter delplanche.cloud",
+    preheader: "Nous avons bien reçu votre message — réponse sous un jour ouvrable.",
     footer: "delplanche.cloud — aucun pixel de suivi, aucun profilage",
   },
 } as const;
@@ -171,6 +184,8 @@ export function contactReceiptEmail(data: {
   subject: string;
   message: string;
   locale: string;
+  category?: ContactCategory;
+  reference?: string;
 }) {
   const copy =
     RECEIPT_COPY[
@@ -179,8 +194,13 @@ export function contactReceiptEmail(data: {
         : "en"
     ];
   const received = new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC";
+  const locale = (data.locale in RECEIPT_COPY ? data.locale : "en") as keyof typeof RECEIPT_COPY;
   const rows: [string, string][] = [
+    ...(data.reference ? ([[copy.rows.reference, data.reference]] as [string, string][]) : []),
     [copy.rows.name, data.name],
+    ...(data.category
+      ? ([[copy.rows.category, categoryLabel(data.category, locale)]] as [string, string][])
+      : []),
     [copy.rows.subject, data.subject],
     [copy.rows.received, received],
   ];
@@ -188,11 +208,13 @@ export function contactReceiptEmail(data: {
   return {
     subject: `${copy.title} — delplanche.cloud`,
     html: shell({
+      preheader: copy.preheader,
       eyebrow: copy.eyebrow,
       title: copy.title,
       intro: copy.intro,
       rows,
       body: { label: copy.body, content: data.message },
+      cta: { label: copy.cta, href: `https://delplanche.cloud/${locale}` },
       footer: copy.footer,
     }),
     text: [copy.title, "", ...rows.map(([l, v]) => `${l}: ${v}`), "", data.message].join("\n"),
@@ -222,6 +244,7 @@ export function infraRequestEmail(data: {
   return {
     subject: `[delplanche.cloud] Infra-aanvraag ${data.ticket}`,
     html: shell({
+      preheader: `${data.org} — ${data.domain}`,
       eyebrow: "Onboarding / delplanche.cloud",
       title: "Nieuwe infrastructuuraanvraag",
       intro: "Een nieuwe onboarding-aanvraag staat in de wachtrij.",
