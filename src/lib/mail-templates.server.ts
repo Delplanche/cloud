@@ -10,7 +10,7 @@ const MUTED = "#6B6A65";
 const MOSS = "#2A4736";
 const LINE = "#E2DFD8";
 
-import { CATEGORY_LABELS, type ContactCategory } from "./contact-categories";
+import { CATEGORY_LABELS, categoryLabel, type ContactCategory } from "./contact-categories";
 
 const MONO = "ui-monospace, SFMono-Regular, Menlo, monospace";
 const SERIF = "Georgia, 'Times New Roman', serif";
@@ -33,12 +33,14 @@ function row(label: string, value: string) {
 }
 
 export function shell(opts: {
+  preheader?: string;
   eyebrow: string;
   banner?: string;
   title: string;
   intro: string;
   rows: [string, string][];
   body?: { label: string; content: string };
+  cta?: { label: string; href: string };
   footer: string;
 }) {
   const rowsHtml = opts.rows.map(([l, v]) => row(l, v)).join("");
@@ -53,6 +55,7 @@ export function shell(opts: {
   return `<!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:${CANVAS};">
+  ${opts.preheader ? `<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">${esc(opts.preheader)}</div>` : ""}
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${CANVAS};padding:40px 16px;">
     <tr><td align="center">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background:${CARD};border:1px solid ${LINE};border-radius:24px;overflow:hidden;">
@@ -76,6 +79,13 @@ export function shell(opts: {
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${rowsHtml}</table>
         </td></tr>
         ${bodyHtml ? `<tr><td style="padding:0 34px;"><table role="presentation" width="100%">${bodyHtml}</table></td></tr>` : ""}
+        ${
+          opts.cta
+            ? `<tr><td style="padding:28px 34px 0 34px;">
+          <a href="${esc(opts.cta.href)}" style="display:inline-block;padding:13px 22px;border-radius:999px;background:${INK};color:${CANVAS};font-family:${MONO};font-size:10px;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;">${esc(opts.cta.label)}</a>
+        </td></tr>`
+            : ""
+        }
         <tr><td style="padding:30px 34px 34px 34px;">
           <div style="border-top:1px solid ${LINE};padding-top:18px;font-family:${MONO};font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:${MUTED};">${esc(opts.footer)}</div>
         </td></tr>
