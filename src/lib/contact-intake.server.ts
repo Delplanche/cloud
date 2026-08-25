@@ -114,6 +114,7 @@ export async function handleContactRequest(request: Request): Promise<Response> 
     chat: chatResult.sent,
     messageId: delivery.desk.messageId,
     idempotencyKey,
+    reference,
   };
 
   // Enkel wanneer élk kanaal faalt is de inzending echt verloren.
