@@ -37,6 +37,7 @@ export type ContactResponse = {
   chat: boolean;
   messageId: string | null;
   idempotencyKey: string;
+  reference: string;
   replay?: boolean;
 };
 
