@@ -14,6 +14,8 @@ export type ChatPayload = {
   message: string;
   locale: string;
   requestId?: string;
+  /** Korte publieke referentie (DPC-XXXXXX) — gedeeld met beide mails. */
+  reference?: string;
 };
 
 function sanitize(value: string) {
@@ -39,6 +41,7 @@ export async function sendChatNotification(
   }
 
   const label = CATEGORY_LABELS[data.category];
+  const reference = data.reference ?? requestId;
   // kChat (Mattermost-compatibel) verwacht een `text`-veld met Markdown.
   const body = {
     username: "delplanche.cloud",
@@ -47,13 +50,13 @@ export async function sendChatNotification(
       "",
       `| | |`,
       `|---|---|`,
+      `| **Referentie** | \`${sanitize(reference)}\` |`,
+      `| **Categorie** | ${sanitize(label)} |`,
       `| **Naam** | ${sanitize(data.name)} |`,
       `| **E-mail** | ${sanitize(data.email)} |`,
       `| **Onderwerp** | ${sanitize(data.subject)} |`,
       "",
       `> ${sanitize(snippet(data.message))}`,
-      "",
-      `_ref ${sanitize(requestId)}_`,
     ].join("\n"),
   } satisfies Record<string, unknown>;
 

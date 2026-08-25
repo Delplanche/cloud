@@ -16,7 +16,12 @@ import type { z } from "zod";
 
 export type InfraRequest = z.infer<typeof infraRequestSchema>;
 
-export type DeliveryContext = { requestId: string; idempotencyKey: string };
+export type DeliveryContext = {
+  requestId: string;
+  idempotencyKey: string;
+  /** Korte publieke referentie (DPC-XXXXXX) die in beide mails terugkomt. */
+  reference?: string;
+};
 
 export type ContactDelivery = { desk: MailResult; receipt: MailResult };
 
@@ -25,9 +30,14 @@ export async function deliverContactMessage(
   data: ContactMessage,
   context: DeliveryContext,
 ): Promise<ContactDelivery> {
+  const { requestId, idempotencyKey, reference } = context;
   const { contactEmail, contactReceiptEmail } = await import("@/lib/mail-templates.server");
-  const mail = contactEmail(data);
-  const receipt = contactReceiptEmail(data);
+  const mail = contactEmail({ ...data, ...(reference ? { reference } : {}) });
+  const receipt = contactReceiptEmail({
+    ...data,
+    category: data.category,
+    ...(reference ? { reference } : {}),
+  });
 
   // Ontvanger komt uit de omgeving (MAIL_TO); DESK_ADDRESS is enkel fallback.
   const owner = process.env["MAIL_TO"] || DESK_ADDRESS;
@@ -40,7 +50,8 @@ export async function deliverContactMessage(
       text: mail.text,
       replyTo: data.email,
       channel: "desk",
-      ...context,
+      requestId,
+      idempotencyKey,
     }),
     sendDeskMail({
       to: data.email,
@@ -49,7 +60,8 @@ export async function deliverContactMessage(
       text: receipt.text,
       replyTo: DESK_ADDRESS,
       channel: "receipt",
-      ...context,
+      requestId,
+      idempotencyKey,
     }),
   ]);
 

@@ -21,6 +21,7 @@ import {
   recallIdempotent,
   rememberIdempotent,
 } from "./anti-abuse.server";
+import { referenceFromKey } from "./contact-categories";
 import { logMail, newRequestId } from "./mail-log.server";
 import { contactMessageSchema } from "./submissions.server";
 
@@ -36,6 +37,7 @@ export type ContactResponse = {
   chat: boolean;
   messageId: string | null;
   idempotencyKey: string;
+  reference: string;
   replay?: boolean;
 };
 
@@ -79,6 +81,9 @@ export async function handleContactRequest(request: Request): Promise<Response> 
     request.headers.get("idempotency-key")?.slice(0, 120) ||
     fingerprint([data.email, data.category, data.subject, data.message]);
 
+  // Korte, mensvriendelijke referentie: identiek bij een replay van dezelfde sleutel.
+  const reference = referenceFromKey(idempotencyKey);
+
   const replayed = recallIdempotent<ContactResponse>(idempotencyKey);
   if (replayed) {
     logMail({ kind: "skipped", channel: "desk", reason: "idempotent_replay", requestId });
@@ -91,8 +96,8 @@ export async function handleContactRequest(request: Request): Promise<Response> 
   // Beide kanalen los van elkaar: een SMTP-storing mag de kChat-melding niet
   // tegenhouden en omgekeerd.
   const [mailSettled, chatSettled] = await Promise.allSettled([
-    deliverContactMessage(data, { requestId, idempotencyKey }),
-    notifyChat({ ...data, requestId }),
+    deliverContactMessage(data, { requestId, idempotencyKey, reference }),
+    notifyChat({ ...data, requestId, reference }),
   ]);
 
   const delivery =
@@ -109,6 +114,7 @@ export async function handleContactRequest(request: Request): Promise<Response> 
     chat: chatResult.sent,
     messageId: delivery.desk.messageId,
     idempotencyKey,
+    reference,
   };
 
   // Enkel wanneer élk kanaal faalt is de inzending echt verloren.
