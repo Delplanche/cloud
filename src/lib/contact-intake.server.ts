@@ -81,6 +81,9 @@ export async function handleContactRequest(request: Request): Promise<Response> 
     request.headers.get("idempotency-key")?.slice(0, 120) ||
     fingerprint([data.email, data.category, data.subject, data.message]);
 
+  // Korte, mensvriendelijke referentie: identiek bij een replay van dezelfde sleutel.
+  const reference = referenceFromKey(idempotencyKey);
+
   const replayed = recallIdempotent<ContactResponse>(idempotencyKey);
   if (replayed) {
     logMail({ kind: "skipped", channel: "desk", reason: "idempotent_replay", requestId });
@@ -93,8 +96,8 @@ export async function handleContactRequest(request: Request): Promise<Response> 
   // Beide kanalen los van elkaar: een SMTP-storing mag de kChat-melding niet
   // tegenhouden en omgekeerd.
   const [mailSettled, chatSettled] = await Promise.allSettled([
-    deliverContactMessage(data, { requestId, idempotencyKey }),
-    notifyChat({ ...data, requestId }),
+    deliverContactMessage(data, { requestId, idempotencyKey, reference }),
+    notifyChat({ ...data, requestId, reference }),
   ]);
 
   const delivery =
