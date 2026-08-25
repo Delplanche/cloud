@@ -50,7 +50,8 @@ export async function deliverContactMessage(
       text: mail.text,
       replyTo: data.email,
       channel: "desk",
-      ...context,
+      requestId,
+      idempotencyKey,
     }),
     sendDeskMail({
       to: data.email,
@@ -59,7 +60,8 @@ export async function deliverContactMessage(
       text: receipt.text,
       replyTo: DESK_ADDRESS,
       channel: "receipt",
-      ...context,
+      requestId,
+      idempotencyKey,
     }),
   ]);
 
