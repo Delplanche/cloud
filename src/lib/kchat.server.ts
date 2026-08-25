@@ -14,6 +14,8 @@ export type ChatPayload = {
   message: string;
   locale: string;
   requestId?: string;
+  /** Korte publieke referentie (DPC-XXXXXX) — gedeeld met beide mails. */
+  reference?: string;
 };
 
 function sanitize(value: string) {
