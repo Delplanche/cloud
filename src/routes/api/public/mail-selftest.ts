@@ -83,33 +83,34 @@ export const Route = createFileRoute("/api/public/mail-selftest")({
             "Dit is een geautomatiseerde testinzending om de SMTP-configuratie te verifiëren. Geen actie vereist.",
         };
 
-        const { sendDeskMail } = await import("@/lib/mailer.server");
+        const { sendBrevoEmail } = await import("@/lib/brevo.server");
         const { contactEmail, contactReceiptEmail } = await import("@/lib/mail-templates.server");
         const desk = contactEmail(probe);
         const receipt = contactReceiptEmail(probe);
         const idempotencyKey = `selftest_${requestId}`;
 
         const [deskResult, receiptResult] = await Promise.all([
-          sendDeskMail({
-            to: DESK_ADDRESS,
+          sendBrevoEmail({
+            to: { email: process.env["MAIL_TO"] || DESK_ADDRESS },
             subject: `[TEST] ${desk.subject}`,
             html: desk.html,
             text: desk.text,
             channel: "diagnostic",
             requestId,
-            idempotencyKey,
+            reference: idempotencyKey,
           }),
-          sendDeskMail({
-            to: probe.email,
+          sendBrevoEmail({
+            to: { email: probe.email },
             subject: `[TEST] ${receipt.subject}`,
             html: receipt.html,
             text: receipt.text,
-            replyTo: DESK_ADDRESS,
+            replyTo: { email: DESK_ADDRESS },
             channel: "diagnostic",
             requestId,
-            idempotencyKey,
+            reference: idempotencyKey,
           }),
         ]);
+
 
         logMail({
           kind: deskResult.sent && receiptResult.sent ? "sent" : "failed",
