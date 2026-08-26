@@ -28,7 +28,7 @@ type UiStrings = {
 
 const UI = {
   nl: {
-    categoryLegend: "{ui.categoryLegend}",
+    categoryLegend: "Onderwerp-categorie",
     categoryRequired: "Kies een categorie",
     reference: "Referentie",
     errors: {
@@ -305,7 +305,7 @@ export function ContactPage({ t }: { t: Dict }) {
                     aria-live="polite"
                     className="font-mono text-[10px] tracking-[0.16em] text-ebony uppercase"
                   >
-                    {p.error}
+                    {errorMessage ?? p.error}
                   </span>
                 )}
               </div>
