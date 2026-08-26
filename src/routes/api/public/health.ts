@@ -38,9 +38,12 @@ export const Route = createFileRoute("/api/public/health")({
           ok: smtpRaw.ok,
           configured: smtpRaw.configured,
           detail: smtpRaw.configured
-            ? `${smtpRaw.host}:${smtpRaw.port}${smtpRaw.secure ? " (tls)" : " (starttls)"}`
+            ? smtpRaw.ok
+              ? "brevo api"
+              : (smtpRaw.errorMessage ?? "brevo_error")
             : "not_configured",
         };
+
         const chat: CheckResult = {
           ok: chatRaw.ok,
           configured: chatRaw.configured,

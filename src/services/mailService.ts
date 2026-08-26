@@ -1,18 +1,26 @@
 /**
  * Service-laag voor uitgaande e-mail.
  *
- * Enige plek waar templates en SMTP-transport samenkomen. API-routes en
- * server-functies roepen uitsluitend deze functies aan; UI-componenten nooit.
- * Pure Node.js — draait ongewijzigd in een serverless functie of Docker.
+ * Enige plek waar templates en transport samenkomen. Verzending gebeurt via de
+ * Brevo HTTP REST API (geen SMTP-sockets), zodat de route op elke serverless
+ * runtime betrouwbaar werkt. API-routes en server-functies roepen uitsluitend
+ * deze functies aan; UI-componenten nooit.
  */
 
-import { sendDeskMail, verifySmtpConnection, type MailResult } from "@/lib/mailer.server";
+import {
+  sendBrevoEmail,
+  verifyBrevoConnection,
+  DESK_RECIPIENT,
+  type BrevoResult,
+} from "@/lib/brevo.server";
 import {
   DESK_ADDRESS,
   type ContactMessage,
   type infraRequestSchema,
 } from "@/lib/submissions.server";
 import type { z } from "zod";
+
+export type MailResult = BrevoResult;
 
 export type InfraRequest = z.infer<typeof infraRequestSchema>;
 
@@ -30,7 +38,7 @@ export async function deliverContactMessage(
   data: ContactMessage,
   context: DeliveryContext,
 ): Promise<ContactDelivery> {
-  const { requestId, idempotencyKey, reference } = context;
+  const { requestId, reference } = context;
   const { contactEmail, contactReceiptEmail } = await import("@/lib/mail-templates.server");
   const mail = contactEmail({ ...data, ...(reference ? { reference } : {}) });
   const receipt = contactReceiptEmail({
@@ -39,29 +47,29 @@ export async function deliverContactMessage(
     ...(reference ? { reference } : {}),
   });
 
-  // Ontvanger komt uit de omgeving (MAIL_TO); DESK_ADDRESS is enkel fallback.
-  const owner = process.env["MAIL_TO"] || DESK_ADDRESS;
+  // Ontvanger komt uit de omgeving (MAIL_TO); anders de vaste desk-inbox.
+  const owner = process.env["MAIL_TO"] || DESK_RECIPIENT;
 
   const [desk, client] = await Promise.all([
-    sendDeskMail({
-      to: owner,
+    sendBrevoEmail({
+      to: { email: owner, name: "Delplanche Cloud Desk" },
       subject: mail.subject,
       html: mail.html,
       text: mail.text,
-      replyTo: data.email,
+      replyTo: { email: data.email, name: data.name },
       channel: "desk",
       requestId,
-      idempotencyKey,
+      ...(reference ? { reference } : {}),
     }),
-    sendDeskMail({
-      to: data.email,
+    sendBrevoEmail({
+      to: { email: data.email, name: data.name },
       subject: receipt.subject,
       html: receipt.html,
       text: receipt.text,
-      replyTo: DESK_ADDRESS,
+      replyTo: { email: DESK_ADDRESS, name: "Delplanche Cloud Desk" },
       channel: "receipt",
       requestId,
-      idempotencyKey,
+      ...(reference ? { reference } : {}),
     }),
   ]);
 
@@ -76,17 +84,18 @@ export async function deliverInfraRequest(
 ): Promise<MailResult> {
   const { infraRequestEmail } = await import("@/lib/mail-templates.server");
   const mail = infraRequestEmail({ ...data, ticket, notes: data.notes || undefined });
-  return sendDeskMail({
+  return sendBrevoEmail({
     channel: "desk",
-    to: DESK_ADDRESS,
+    to: { email: process.env["MAIL_TO"] || DESK_RECIPIENT },
     subject: mail.subject,
     html: mail.html,
     text: mail.text,
-    replyTo: data.email,
+    replyTo: { email: data.email },
     ...(context?.requestId ? { requestId: context.requestId } : {}),
-    ...(context?.idempotencyKey ? { idempotencyKey: context.idempotencyKey } : {}),
+    reference: ticket,
   });
 }
 
 /** Gezondheidscheck voor /api/public/health. */
-export const checkMailTransport = verifySmtpConnection;
+export const checkMailTransport = verifyBrevoConnection;
+
