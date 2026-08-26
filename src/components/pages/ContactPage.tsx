@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Check, Copy, Loader2 } from "lucide-react";
 import { useLocale, type Dict } from "@/i18n";
 import {
-  CATEGORY_LABELS,
   CATEGORY_ORDER,
+  categoryLabel,
   type ContactCategory,
 } from "@/lib/contact-categories";
 import {
@@ -19,12 +19,66 @@ import {
 const FINGERPRINT = "4A2B 8F91 C3E4 D5F6 7890 1234 5678 90AB CDEF 1234";
 const MATRIX_ID = "@jona:delplanche.cloud";
 
+type UiStrings = {
+  categoryLegend: string;
+  categoryRequired: string;
+  reference: string;
+  errors: Record<"rate" | "spam" | "input" | "delivery" | "generic", string>;
+};
+
+const UI = {
+  nl: {
+    categoryLegend: "Onderwerp-categorie",
+    categoryRequired: "Kies een categorie",
+    reference: "Referentie",
+    errors: {
+      rate: "Te veel pogingen — probeer over enkele minuten opnieuw",
+      spam: "Bericht geweigerd door de spamfilter — herformuleer of mail direct",
+      input: "Controleer de ingevulde velden en probeer opnieuw",
+      delivery: "Bezorging mislukt — mail direct naar core@delplanche.cloud",
+      generic: "Verzenden mislukt — probeer opnieuw of mail direct",
+    },
+  },
+  en: {
+    categoryLegend: "Subject category",
+    categoryRequired: "Choose a category",
+    reference: "Reference",
+    errors: {
+      rate: "Too many attempts — try again in a few minutes",
+      spam: "Message rejected by the spam filter — rephrase or mail us directly",
+      input: "Check the fields and try again",
+      delivery: "Delivery failed — mail core@delplanche.cloud directly",
+      generic: "Sending failed — try again or mail us directly",
+    },
+  },
+  fr: {
+    categoryLegend: "Catégorie du sujet",
+    categoryRequired: "Choisissez une catégorie",
+    reference: "Référence",
+    errors: {
+      rate: "Trop de tentatives — réessayez dans quelques minutes",
+      spam: "Message refusé par le filtre anti-spam — reformulez ou écrivez-nous directement",
+      input: "Vérifiez les champs et réessayez",
+      delivery: "Échec de l'envoi — écrivez directement à core@delplanche.cloud",
+      generic: "Échec de l'envoi — réessayez ou écrivez-nous directement",
+    },
+  },
+} satisfies Record<string, UiStrings>;
+
+function newIdempotencyKey() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  return `k_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export function ContactPage({ t }: { t: Dict }) {
   const p = t.contactPage;
   const [copied, setCopied] = useState<"pgp" | "matrix" | null>(null);
   const [state, setState] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [category, setCategory] = useState<ContactCategory | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const locale = useLocale();
+  const ui: UiStrings = (UI as Record<string, UiStrings>)[locale] ?? UI.nl;
+  const idempotencyKey = useRef<string>(newIdempotencyKey());
 
   const copy = async (value: string, key: "pgp" | "matrix") => {
     try {
@@ -36,11 +90,19 @@ export function ContactPage({ t }: { t: Dict }) {
     }
   };
 
-  const [summary, setSummary] = useState<{ subject: string; email: string } | null>(null);
+  const [summary, setSummary] = useState<{
+    subject: string;
+    email: string;
+    reference?: string | undefined;
+  } | null>(null);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!category) return;
+    if (!category) {
+      setErrorMessage(ui.categoryRequired);
+      setState("error");
+      return;
+    }
     const form = new FormData(e.currentTarget);
     const payload = {
       locale,
@@ -52,19 +114,44 @@ export function ContactPage({ t }: { t: Dict }) {
       company: String(form.get("company") ?? ""),
     };
     setState("sending");
+    setErrorMessage(null);
     try {
       const res = await fetch("/api/public/contact", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": idempotencyKey.current,
+        },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error(String(res.status));
-      setSummary({ subject: payload.subject, email: payload.email });
+      if (!res.ok) {
+        const message =
+          res.status === 429
+            ? ui.errors.rate
+            : res.status === 422
+              ? ui.errors.spam
+              : res.status === 400
+                ? ui.errors.input
+                : res.status === 502
+                  ? ui.errors.delivery
+                  : ui.errors.generic;
+        setErrorMessage(message);
+        setState("error");
+        return;
+      }
+      const data = (await res.json().catch(() => null)) as { reference?: string } | null;
+      setSummary({
+        subject: payload.subject,
+        email: payload.email,
+        reference: data?.reference,
+      });
       setState("sent");
     } catch {
+      setErrorMessage(ui.errors.generic);
       setState("error");
     }
   };
+
 
   return (
     <PageShellLite index={p.index} title={p.title} lead={p.lead}>
@@ -96,6 +183,14 @@ export function ContactPage({ t }: { t: Dict }) {
                       </dt>
                       <dd className="font-mono text-[12px] text-ebony">{summary.email}</dd>
                     </div>
+                    {summary.reference && (
+                      <div className="flex flex-col gap-1 py-3 sm:flex-row sm:gap-6">
+                        <dt className="font-mono text-[9px] tracking-[0.18em] text-muted-ink uppercase sm:w-32">
+                          {ui.reference}
+                        </dt>
+                        <dd className="font-mono text-[12px] text-ebony">{summary.reference}</dd>
+                      </div>
+                    )}
                   </dl>
                 )}
                 <button
@@ -104,9 +199,12 @@ export function ContactPage({ t }: { t: Dict }) {
                   onClick={() => {
                     setSummary(null);
                     setCategory(null);
+                    setErrorMessage(null);
+                    idempotencyKey.current = newIdempotencyKey();
                     setState("idle");
                   }}
                 >
+
                   {p.again} <Arrow />
                 </button>
               </div>
@@ -124,7 +222,7 @@ export function ContactPage({ t }: { t: Dict }) {
               </div>
               <fieldset className="md:col-span-2">
                 <legend className="font-mono text-[10px] tracking-[0.18em] text-muted-ink uppercase">
-                  Onderwerp-categorie
+                  {ui.categoryLegend}
                 </legend>
                 <div className="mt-3 flex flex-wrap gap-2" role="radiogroup" aria-required="true">
                   {CATEGORY_ORDER.map((key) => {
@@ -142,14 +240,14 @@ export function ContactPage({ t }: { t: Dict }) {
                             : "border-gridline-strong bg-transparent text-muted-ink hover:border-ebony hover:text-ebony"
                         }`}
                       >
-                        {CATEGORY_LABELS[key]}
+                        {categoryLabel(key, locale)}
                       </button>
                     );
                   })}
                 </div>
                 {state === "error" && !category && (
                   <p className="mt-2 font-mono text-[10px] tracking-[0.16em] text-ebony uppercase">
-                    Kies een categorie
+                    {ui.categoryRequired}
                   </p>
                 )}
               </fieldset>
@@ -218,7 +316,7 @@ export function ContactPage({ t }: { t: Dict }) {
                     aria-live="polite"
                     className="font-mono text-[10px] tracking-[0.16em] text-ebony uppercase"
                   >
-                    {p.error}
+                    {errorMessage ?? p.error}
                   </span>
                 )}
               </div>
