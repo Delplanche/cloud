@@ -183,6 +183,14 @@ export function ContactPage({ t }: { t: Dict }) {
                       </dt>
                       <dd className="font-mono text-[12px] text-ebony">{summary.email}</dd>
                     </div>
+                    {summary.reference && (
+                      <div className="flex flex-col gap-1 py-3 sm:flex-row sm:gap-6">
+                        <dt className="font-mono text-[9px] tracking-[0.18em] text-muted-ink uppercase sm:w-32">
+                          {ui.reference}
+                        </dt>
+                        <dd className="font-mono text-[12px] text-ebony">{summary.reference}</dd>
+                      </div>
+                    )}
                   </dl>
                 )}
                 <button
@@ -191,9 +199,12 @@ export function ContactPage({ t }: { t: Dict }) {
                   onClick={() => {
                     setSummary(null);
                     setCategory(null);
+                    setErrorMessage(null);
+                    idempotencyKey.current = newIdempotencyKey();
                     setState("idle");
                   }}
                 >
+
                   {p.again} <Arrow />
                 </button>
               </div>
