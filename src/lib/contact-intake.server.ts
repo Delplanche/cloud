@@ -32,6 +32,7 @@ const payloadSchema = contactMessageSchema.extend({
 
 export type ContactResponse = {
   ok: true;
+  success: true;
   email: boolean;
   receipt: boolean;
   chat: boolean;
@@ -40,6 +41,7 @@ export type ContactResponse = {
   reference: string;
   replay?: boolean;
 };
+
 
 export async function handleContactRequest(request: Request): Promise<Response> {
   const requestId = newRequestId();
