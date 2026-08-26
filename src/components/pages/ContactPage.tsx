@@ -26,9 +26,9 @@ type UiStrings = {
   errors: Record<"rate" | "spam" | "input" | "delivery" | "generic", string>;
 };
 
-const UI: Record<string, UiStrings> = {
+const UI = {
   nl: {
-    categoryLegend: "Onderwerp-categorie",
+    categoryLegend: "{ui.categoryLegend}",
     categoryRequired: "Kies een categorie",
     reference: "Referentie",
     errors: {
@@ -63,7 +63,7 @@ const UI: Record<string, UiStrings> = {
       generic: "Échec de l'envoi — réessayez ou écrivez-nous directement",
     },
   },
-};
+} satisfies Record<string, UiStrings>;
 
 function newIdempotencyKey() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
@@ -77,7 +77,7 @@ export function ContactPage({ t }: { t: Dict }) {
   const [category, setCategory] = useState<ContactCategory | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const locale = useLocale();
-  const ui = UI[locale] ?? UI.nl;
+  const ui: UiStrings = (UI as Record<string, UiStrings>)[locale] ?? UI.nl;
   const idempotencyKey = useRef<string>(newIdempotencyKey());
 
   const copy = async (value: string, key: "pgp" | "matrix") => {
@@ -93,7 +93,7 @@ export function ContactPage({ t }: { t: Dict }) {
   const [summary, setSummary] = useState<{
     subject: string;
     email: string;
-    reference?: string;
+    reference?: string | undefined;
   } | null>(null);
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -211,7 +211,7 @@ export function ContactPage({ t }: { t: Dict }) {
               </div>
               <fieldset className="md:col-span-2">
                 <legend className="font-mono text-[10px] tracking-[0.18em] text-muted-ink uppercase">
-                  Onderwerp-categorie
+                  {ui.categoryLegend}
                 </legend>
                 <div className="mt-3 flex flex-wrap gap-2" role="radiogroup" aria-required="true">
                   {CATEGORY_ORDER.map((key) => {
@@ -229,14 +229,14 @@ export function ContactPage({ t }: { t: Dict }) {
                             : "border-gridline-strong bg-transparent text-muted-ink hover:border-ebony hover:text-ebony"
                         }`}
                       >
-                        {CATEGORY_LABELS[key]}
+                        {categoryLabel(key, locale)}
                       </button>
                     );
                   })}
                 </div>
                 {state === "error" && !category && (
                   <p className="mt-2 font-mono text-[10px] tracking-[0.16em] text-ebony uppercase">
-                    Kies een categorie
+                    {ui.categoryRequired}
                   </p>
                 )}
               </fieldset>
