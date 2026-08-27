@@ -9,6 +9,7 @@
 
 import {
   sendBrevoEmail,
+  templateIdFromEnv,
   verifyBrevoConnection,
   DESK_RECIPIENT,
   type BrevoResult,
