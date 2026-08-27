@@ -57,6 +57,7 @@ const UI = {
   fr: {
     categoryLegend: "Catégorie du sujet",
     categoryRequired: "Choisissez une catégorie",
+    fieldsRequired: "Choisissez d'abord une catégorie et remplissez tous les champs",
     reference: "Référence",
     errors: {
       rate: "Trop de tentatives — réessayez dans quelques minutes",
