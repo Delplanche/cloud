@@ -44,6 +44,7 @@ const UI = {
   en: {
     categoryLegend: "Subject category",
     categoryRequired: "Choose a category",
+    fieldsRequired: "Select a subject category and fill in every field first",
     reference: "Reference",
     errors: {
       rate: "Too many attempts — try again in a few minutes",
