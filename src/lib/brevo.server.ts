@@ -67,12 +67,25 @@ export async function sendBrevoEmail(payload: BrevoPayload): Promise<BrevoResult
     email: process.env["MAIL_FROM"] || DEFAULT_SENDER.email,
   };
 
+  // Met een template-ID stuurt Brevo de opmaak aan; anders valt de verzending
+  // terug op de lokaal gerenderde HTML/tekst.
+  const content = payload.templateId
+    ? {
+        templateId: payload.templateId,
+        params: Object.fromEntries(
+          Object.entries(payload.params ?? {}).filter(([, v]) => v !== undefined && v !== null),
+        ),
+      }
+    : {
+        subject: payload.subject,
+        htmlContent: payload.html,
+        textContent: payload.text,
+      };
+
   const body = {
     sender,
     to: [payload.to],
-    subject: payload.subject,
-    htmlContent: payload.html,
-    textContent: payload.text,
+    ...content,
     ...(payload.replyTo ? { replyTo: payload.replyTo } : {}),
     ...(payload.reference ? { tags: [payload.reference] } : {}),
   };
