@@ -245,10 +245,14 @@ export function ContactPage({ t }: { t: Dict }) {
                         role="radio"
                         aria-checked={active}
                         onClick={() => setCategory(key)}
-                        className={`inline-flex min-h-11 items-center rounded-full border px-4 font-mono text-[10px] tracking-[0.16em] uppercase transition-colors focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-moss ${
+                        className={`inline-flex min-h-11 items-center rounded-full border px-4 font-mono text-[10px] font-medium tracking-[0.16em] uppercase transition-all duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-moss ${
                           active
-                            ? "border-ebony bg-ebony text-canvas"
-                            : "border-gridline-strong bg-transparent text-muted-ink hover:border-ebony hover:text-ebony"
+                            ? "border-ebony bg-ebony text-canvas shadow-[0_1px_0_0_var(--ebony)] ring-1 ring-ebony"
+                            : `bg-transparent text-muted-ink hover:border-ebony hover:text-ebony ${
+                                state === "error" && !category
+                                  ? "border-swiss-red"
+                                  : "border-gridline-strong"
+                              }`
                         }`}
                       >
                         {categoryLabel(key, locale)}
@@ -257,7 +261,7 @@ export function ContactPage({ t }: { t: Dict }) {
                   })}
                 </div>
                 {state === "error" && !category && (
-                  <p className="mt-2 font-mono text-[10px] tracking-[0.16em] text-ebony uppercase">
+                  <p className="mt-2 font-mono text-[10px] tracking-[0.16em] text-swiss-red uppercase">
                     {ui.categoryRequired}
                   </p>
                 )}
