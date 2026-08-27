@@ -9,8 +9,8 @@
  * Docker-container of CI-stap draait.
  */
 
-const REQUIRED = ["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS", "MAIL_FROM", "MAIL_TO"];
-const RECOMMENDED = ["KCHAT_WEBHOOK_URL", "MAIL_SELFTEST_TOKEN"];
+const REQUIRED = ["BREVO_API_KEY", "MAIL_FROM", "MAIL_TO"];
+const RECOMMENDED = ["KCHAT_WEBHOOK_URL", "MAIL_SELFTEST_TOKEN", "MAIL_FROM_NAME"];
 
 const strict = process.argv.includes("--strict") || process.env["ENV_CHECK_STRICT"] === "1";
 const mocked = Boolean(process.env["MAIL_DEV_MOCK"]);
@@ -18,8 +18,6 @@ const mocked = Boolean(process.env["MAIL_DEV_MOCK"]);
 const missing = REQUIRED.filter((name) => !process.env[name]);
 const warnings = RECOMMENDED.filter((name) => !process.env[name]);
 
-const port = process.env["SMTP_PORT"];
-if (port && !Number.isInteger(Number(port))) missing.push(`SMTP_PORT (geen getal: "${port}")`);
 
 for (const name of warnings) {
   console.warn(`\u26a0 check-env: ${name} ontbreekt — bijhorende functie is uitgeschakeld`);
