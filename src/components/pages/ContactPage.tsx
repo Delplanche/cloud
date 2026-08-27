@@ -22,6 +22,7 @@ const MATRIX_ID = "@jona:delplanche.cloud";
 type UiStrings = {
   categoryLegend: string;
   categoryRequired: string;
+  fieldsRequired: string;
   reference: string;
   errors: Record<"rate" | "spam" | "input" | "delivery" | "generic", string>;
 };
@@ -30,6 +31,7 @@ const UI = {
   nl: {
     categoryLegend: "Onderwerp-categorie",
     categoryRequired: "Kies een categorie",
+    fieldsRequired: "Selecteer eerst een onderwerp-categorie en vul alle velden in",
     reference: "Referentie",
     errors: {
       rate: "Te veel pogingen — probeer over enkele minuten opnieuw",
@@ -42,6 +44,7 @@ const UI = {
   en: {
     categoryLegend: "Subject category",
     categoryRequired: "Choose a category",
+    fieldsRequired: "Select a subject category and fill in every field first",
     reference: "Reference",
     errors: {
       rate: "Too many attempts — try again in a few minutes",
@@ -54,6 +57,7 @@ const UI = {
   fr: {
     categoryLegend: "Catégorie du sujet",
     categoryRequired: "Choisissez une catégorie",
+    fieldsRequired: "Choisissez d'abord une catégorie et remplissez tous les champs",
     reference: "Référence",
     errors: {
       rate: "Trop de tentatives — réessayez dans quelques minutes",
@@ -98,21 +102,28 @@ export function ContactPage({ t }: { t: Dict }) {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!category) {
-      setErrorMessage(ui.categoryRequired);
-      setState("error");
-      return;
-    }
     const form = new FormData(e.currentTarget);
     const payload = {
       locale,
-      category,
-      name: String(form.get("name") ?? ""),
-      email: String(form.get("email") ?? ""),
-      subject: String(form.get("subject") ?? ""),
-      message: String(form.get("message") ?? ""),
+      category: category as ContactCategory,
+      name: String(form.get("name") ?? "").trim(),
+      email: String(form.get("email") ?? "").trim(),
+      subject: String(form.get("subject") ?? "").trim(),
+      message: String(form.get("message") ?? "").trim(),
       company: String(form.get("company") ?? ""),
     };
+    // Alles-in-één controle: geen stille no-op meer bij een ontbrekend veld.
+    if (
+      !category ||
+      payload.name.length < 2 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email) ||
+      payload.subject.length < 2 ||
+      payload.message.length < 10
+    ) {
+      setErrorMessage(ui.fieldsRequired);
+      setState("error");
+      return;
+    }
     setState("sending");
     setErrorMessage(null);
     try {
@@ -234,10 +245,14 @@ export function ContactPage({ t }: { t: Dict }) {
                         role="radio"
                         aria-checked={active}
                         onClick={() => setCategory(key)}
-                        className={`inline-flex min-h-11 items-center rounded-full border px-4 font-mono text-[10px] tracking-[0.16em] uppercase transition-colors focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-moss ${
+                        className={`inline-flex min-h-11 items-center rounded-full border px-4 font-mono text-[10px] font-medium tracking-[0.16em] uppercase transition-all duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-moss ${
                           active
-                            ? "border-ebony bg-ebony text-canvas"
-                            : "border-gridline-strong bg-transparent text-muted-ink hover:border-ebony hover:text-ebony"
+                            ? "border-ebony bg-ebony text-canvas shadow-[0_1px_0_0_var(--ebony)] ring-1 ring-ebony"
+                            : `bg-transparent text-muted-ink hover:border-ebony hover:text-ebony ${
+                                state === "error" && !category
+                                  ? "border-swiss-red"
+                                  : "border-gridline-strong"
+                              }`
                         }`}
                       >
                         {categoryLabel(key, locale)}
@@ -246,7 +261,7 @@ export function ContactPage({ t }: { t: Dict }) {
                   })}
                 </div>
                 {state === "error" && !category && (
-                  <p className="mt-2 font-mono text-[10px] tracking-[0.16em] text-ebony uppercase">
+                  <p className="mt-2 font-mono text-[10px] tracking-[0.16em] text-swiss-red uppercase">
                     {ui.categoryRequired}
                   </p>
                 )}
@@ -285,12 +300,22 @@ export function ContactPage({ t }: { t: Dict }) {
                   />
                 </Field>
               </div>
-              <div className="flex flex-wrap items-center gap-5 md:col-span-2">
+              <div className="flex flex-col gap-4 md:col-span-2">
+                {state === "error" && (
+                  <p
+                    role="alert"
+                    aria-live="assertive"
+                    className="border border-swiss-red/60 bg-swiss-red/5 px-4 py-3 font-mono text-[10px] leading-relaxed tracking-[0.16em] text-swiss-red uppercase"
+                  >
+                    {errorMessage ?? p.error}
+                  </p>
+                )}
+                <div className="flex flex-wrap items-center gap-5">
                 <button
                   type="submit"
-                  disabled={state === "sending" || !category}
+                  disabled={state === "sending"}
                   aria-busy={state === "sending"}
-                  className={`${actionClass} relative overflow-hidden transition-all duration-300`}
+                  className={`${actionClass} relative overflow-hidden transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-70`}
                 >
                   <span
                     className={`flex items-center gap-2.5 transition-all duration-300 ${

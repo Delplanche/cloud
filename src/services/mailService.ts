@@ -9,6 +9,7 @@
 
 import {
   sendBrevoEmail,
+  templateIdFromEnv,
   verifyBrevoConnection,
   DESK_RECIPIENT,
   type BrevoResult,
@@ -50,6 +51,17 @@ export async function deliverContactMessage(
   // Ontvanger komt uit de omgeving (MAIL_TO); anders de vaste desk-inbox.
   const owner = process.env["MAIL_TO"] || DESK_RECIPIENT;
 
+  // Dynamische parameters voor de Brevo-templates (identiek voor beide mails).
+  const params = {
+    name: data.name,
+    email: data.email,
+    category: data.category,
+    subject: data.subject,
+    message: data.message,
+    locale: data.locale,
+    reference: reference ?? "",
+  };
+
   const [desk, client] = await Promise.all([
     sendBrevoEmail({
       to: { email: owner, name: "Delplanche Cloud Desk" },
@@ -59,6 +71,8 @@ export async function deliverContactMessage(
       replyTo: { email: data.email, name: data.name },
       channel: "desk",
       requestId,
+      templateId: templateIdFromEnv("BREVO_TEMPLATE_ID_DESK"),
+      params,
       ...(reference ? { reference } : {}),
     }),
     sendBrevoEmail({
@@ -69,6 +83,8 @@ export async function deliverContactMessage(
       replyTo: { email: DESK_ADDRESS, name: "Delplanche Cloud Desk" },
       channel: "receipt",
       requestId,
+      templateId: templateIdFromEnv("BREVO_TEMPLATE_ID_RECEIPT"),
+      params,
       ...(reference ? { reference } : {}),
     }),
   ]);

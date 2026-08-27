@@ -30,7 +30,19 @@ export type BrevoPayload = {
   requestId?: string;
   /** Wordt als tag meegestuurd zodat een replay herkenbaar blijft. */
   reference?: string;
+  /** Brevo-template (numeriek ID). Vervangt de lokale HTML wanneer gezet. */
+  templateId?: number | undefined;
+  /** Dynamische parameters voor de Brevo-template. */
+  params?: Record<string, string | number | null | undefined> | undefined;
 };
+
+/** Leest een numeriek template-ID uit de omgeving; 0/leeg = geen template. */
+export function templateIdFromEnv(name: string): number | undefined {
+  const raw = process.env[name];
+  if (!raw) return undefined;
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+}
 
 export type BrevoResult = {
   sent: boolean;
@@ -55,12 +67,25 @@ export async function sendBrevoEmail(payload: BrevoPayload): Promise<BrevoResult
     email: process.env["MAIL_FROM"] || DEFAULT_SENDER.email,
   };
 
+  // Met een template-ID stuurt Brevo de opmaak aan; anders valt de verzending
+  // terug op de lokaal gerenderde HTML/tekst.
+  const content = payload.templateId
+    ? {
+        templateId: payload.templateId,
+        params: Object.fromEntries(
+          Object.entries(payload.params ?? {}).filter(([, v]) => v !== undefined && v !== null),
+        ),
+      }
+    : {
+        subject: payload.subject,
+        htmlContent: payload.html,
+        textContent: payload.text,
+      };
+
   const body = {
     sender,
     to: [payload.to],
-    subject: payload.subject,
-    htmlContent: payload.html,
-    textContent: payload.text,
+    ...content,
     ...(payload.replyTo ? { replyTo: payload.replyTo } : {}),
     ...(payload.reference ? { tags: [payload.reference] } : {}),
   };
