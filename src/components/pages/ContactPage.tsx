@@ -102,21 +102,28 @@ export function ContactPage({ t }: { t: Dict }) {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!category) {
-      setErrorMessage(ui.categoryRequired);
-      setState("error");
-      return;
-    }
     const form = new FormData(e.currentTarget);
     const payload = {
       locale,
-      category,
-      name: String(form.get("name") ?? ""),
-      email: String(form.get("email") ?? ""),
-      subject: String(form.get("subject") ?? ""),
-      message: String(form.get("message") ?? ""),
+      category: category as ContactCategory,
+      name: String(form.get("name") ?? "").trim(),
+      email: String(form.get("email") ?? "").trim(),
+      subject: String(form.get("subject") ?? "").trim(),
+      message: String(form.get("message") ?? "").trim(),
       company: String(form.get("company") ?? ""),
     };
+    // Alles-in-één controle: geen stille no-op meer bij een ontbrekend veld.
+    if (
+      !category ||
+      payload.name.length < 2 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(payload.email) ||
+      payload.subject.length < 2 ||
+      payload.message.length < 10
+    ) {
+      setErrorMessage(ui.fieldsRequired);
+      setState("error");
+      return;
+    }
     setState("sending");
     setErrorMessage(null);
     try {
