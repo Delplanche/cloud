@@ -30,7 +30,19 @@ export type BrevoPayload = {
   requestId?: string;
   /** Wordt als tag meegestuurd zodat een replay herkenbaar blijft. */
   reference?: string;
+  /** Brevo-template (numeriek ID). Vervangt de lokale HTML wanneer gezet. */
+  templateId?: number | undefined;
+  /** Dynamische parameters voor de Brevo-template. */
+  params?: Record<string, string | number | null | undefined> | undefined;
 };
+
+/** Leest een numeriek template-ID uit de omgeving; 0/leeg = geen template. */
+export function templateIdFromEnv(name: string): number | undefined {
+  const raw = process.env[name];
+  if (!raw) return undefined;
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : undefined;
+}
 
 export type BrevoResult = {
   sent: boolean;
