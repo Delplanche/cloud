@@ -14,16 +14,16 @@ export type EnvReport = {
 };
 
 /** Variabelen zonder dewelke de mailketen niet kan functioneren. */
-const REQUIRED = ["SMTP_HOST", "SMTP_PORT", "SMTP_USER", "SMTP_PASS", "MAIL_FROM", "MAIL_TO"];
+const REQUIRED = ["BREVO_API_KEY", "MAIL_FROM", "MAIL_TO"];
 
 /** Optioneel, maar afwezigheid betekent stil verlies van functionaliteit. */
-const RECOMMENDED = ["KCHAT_WEBHOOK_URL", "MAIL_SELFTEST_TOKEN"];
+const RECOMMENDED = ["KCHAT_WEBHOOK_URL", "MAIL_SELFTEST_TOKEN", "MAIL_FROM_NAME"];
 
 export function inspectEnv(env: NodeJS.ProcessEnv = process.env): EnvReport {
   const missing: EnvIssue[] = [];
   const warnings: EnvIssue[] = [];
 
-  // De dev-mock vervangt SMTP volledig; dan zijn de SMTP-variabelen optioneel.
+  // De dev-mock vervangt verzending volledig; dan zijn de mailvariabelen optioneel.
   const mocked = Boolean(env["MAIL_DEV_MOCK"]);
 
   for (const name of REQUIRED) {
@@ -31,10 +31,7 @@ export function inspectEnv(env: NodeJS.ProcessEnv = process.env): EnvReport {
     (mocked ? warnings : missing).push({ name, reason: "ontbreekt" });
   }
 
-  const port = env["SMTP_PORT"];
-  if (port && !Number.isInteger(Number(port))) {
-    missing.push({ name: "SMTP_PORT", reason: `geen geheel getal ("${port}")` });
-  }
+
 
   for (const name of RECOMMENDED) {
     if (!env[name]) warnings.push({ name, reason: "niet ingesteld — functie uitgeschakeld" });

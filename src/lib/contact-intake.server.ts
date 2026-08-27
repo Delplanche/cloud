@@ -111,6 +111,7 @@ export async function handleContactRequest(request: Request): Promise<Response> 
 
   const result: ContactResponse = {
     ok: true,
+    success: true,
     email: delivery.desk.sent,
     receipt: delivery.receipt.sent,
     chat: chatResult.sent,
