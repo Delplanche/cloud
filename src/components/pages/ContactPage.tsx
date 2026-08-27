@@ -300,12 +300,22 @@ export function ContactPage({ t }: { t: Dict }) {
                   />
                 </Field>
               </div>
-              <div className="flex flex-wrap items-center gap-5 md:col-span-2">
+              <div className="flex flex-col gap-4 md:col-span-2">
+                {state === "error" && (
+                  <p
+                    role="alert"
+                    aria-live="assertive"
+                    className="border border-swiss-red/60 bg-swiss-red/5 px-4 py-3 font-mono text-[10px] leading-relaxed tracking-[0.16em] text-swiss-red uppercase"
+                  >
+                    {errorMessage ?? p.error}
+                  </p>
+                )}
+                <div className="flex flex-wrap items-center gap-5">
                 <button
                   type="submit"
-                  disabled={state === "sending" || !category}
+                  disabled={state === "sending"}
                   aria-busy={state === "sending"}
-                  className={`${actionClass} relative overflow-hidden transition-all duration-300`}
+                  className={`${actionClass} relative overflow-hidden transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-70`}
                 >
                   <span
                     className={`flex items-center gap-2.5 transition-all duration-300 ${
