@@ -22,6 +22,7 @@ const MATRIX_ID = "@jona:delplanche.cloud";
 type UiStrings = {
   categoryLegend: string;
   categoryRequired: string;
+  fieldsRequired: string;
   reference: string;
   errors: Record<"rate" | "spam" | "input" | "delivery" | "generic", string>;
 };
@@ -30,6 +31,7 @@ const UI = {
   nl: {
     categoryLegend: "Onderwerp-categorie",
     categoryRequired: "Kies een categorie",
+    fieldsRequired: "Selecteer eerst een onderwerp-categorie en vul alle velden in",
     reference: "Referentie",
     errors: {
       rate: "Te veel pogingen — probeer over enkele minuten opnieuw",
