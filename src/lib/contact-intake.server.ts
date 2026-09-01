@@ -22,7 +22,7 @@ import {
   rememberIdempotent,
 } from "./anti-abuse.server";
 import { referenceFromKey } from "./contact-categories";
-import { logMail, newRequestId } from "./mail-log.server";
+import { describeError, logMail, newRequestId } from "./mail-log.server";
 import { contactMessageSchema } from "./submissions.server";
 
 const payloadSchema = contactMessageSchema.extend({
@@ -95,11 +95,23 @@ export async function handleContactRequest(request: Request): Promise<Response> 
   const { deliverContactMessage } = await import("@/services/mailService");
   const { notifyChat } = await import("@/services/chatService");
 
-  // Beide kanalen los van elkaar: een SMTP-storing mag de kChat-melding niet
-  // tegenhouden en omgekeerd.
+  // Beide kanalen lopen parallel en falen onafhankelijk. Een haperende kChat-
+  // webhook mag de e-mailstroom en formulierbevestiging nooit blokkeren.
   const [mailSettled, chatSettled] = await Promise.allSettled([
     deliverContactMessage(data, { requestId, idempotencyKey, reference }),
-    notifyChat({ ...data, requestId, reference }),
+    notifyChat({ ...data, requestId, reference }).catch((error) => {
+      const described = describeError(error);
+      logMail({
+        kind: "failed",
+        channel: "chat",
+        errorCode: `chat_caught:${described.errorCode}`,
+        errorName: described.errorName,
+        errorMessage: described.errorMessage,
+        durationMs: 0,
+        requestId,
+      });
+      return { sent: false };
+    }),
   ]);
 
   const delivery =
