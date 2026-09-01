@@ -100,12 +100,15 @@ export async function handleContactRequest(request: Request): Promise<Response> 
   const [mailSettled, chatSettled] = await Promise.allSettled([
     deliverContactMessage(data, { requestId, idempotencyKey, reference }),
     notifyChat({ ...data, requestId, reference }).catch((error) => {
+      const described = describeError(error);
       logMail({
         kind: "failed",
         channel: "chat",
-        reason: "caught_exception",
+        errorCode: `chat_caught:${described.errorCode}`,
+        errorName: described.errorName,
+        errorMessage: described.errorMessage,
+        durationMs: 0,
         requestId,
-        errorMessage: String(error),
       });
       return { sent: false };
     }),
