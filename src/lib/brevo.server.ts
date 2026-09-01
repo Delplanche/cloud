@@ -16,7 +16,7 @@ export const DEFAULT_SENDER = {
 } as const;
 
 /** Desk-ontvanger; overschrijfbaar via MAIL_TO. */
-export const DESK_RECIPIENT = "jona@delplanche.cloud";
+export const DESK_RECIPIENT = "core@delplanche.cloud";
 
 export type BrevoContact = { email: string; name?: string };
 

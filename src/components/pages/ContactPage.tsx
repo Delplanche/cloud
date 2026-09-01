@@ -246,8 +246,8 @@ export function ContactPage({ t }: { t: Dict }) {
                         aria-checked={active}
                         onClick={() => setCategory(key)}
                         className={`inline-flex min-h-11 items-center rounded-full border px-4 font-mono text-[10px] font-medium tracking-[0.16em] uppercase transition-all duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-2 focus-visible:outline-moss ${
-                          active
-                            ? "border-ebony bg-ebony text-canvas shadow-[0_1px_0_0_var(--ebony)] ring-1 ring-ebony"
+                        active
+                            ? "border-ebony bg-ebony text-canvas font-semibold shadow-[0_1px_0_0_var(--ebony)] ring-1 ring-ebony"
                             : `bg-transparent text-muted-ink hover:border-ebony hover:text-ebony ${
                                 state === "error" && !category
                                   ? "border-swiss-red"
@@ -311,39 +311,32 @@ export function ContactPage({ t }: { t: Dict }) {
                   </p>
                 )}
                 <div className="flex flex-wrap items-center gap-5">
-                <button
-                  type="submit"
-                  disabled={state === "sending"}
-                  aria-busy={state === "sending"}
-                  className={`${actionClass} relative overflow-hidden transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-70`}
-                >
-                  <span
-                    className={`flex items-center gap-2.5 transition-all duration-300 ${
-                      state === "sending" ? "opacity-0" : "opacity-100"
-                    }`}
+                  <button
+                    type="submit"
+                    disabled={state === "sending"}
+                    aria-busy={state === "sending"}
+                    className={`${actionClass} relative overflow-hidden transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-70`}
                   >
-                    {p.submit} <Arrow />
+                    <span
+                      className={`flex items-center gap-2.5 transition-all duration-300 ${
+                        state === "sending" ? "opacity-0" : "opacity-100"
+                      }`}
+                    >
+                      {p.submit} <Arrow />
+                    </span>
+                    <span
+                      aria-hidden={state !== "sending"}
+                      className={`absolute inset-0 flex items-center justify-center gap-2.5 transition-opacity duration-300 ${
+                        state === "sending" ? "opacity-100" : "opacity-0"
+                      }`}
+                    >
+                      <Loader2 size={12} className="animate-spin" /> {p.submitting}
+                    </span>
+                  </button>
+                  <span className="font-mono text-[10px] tracking-[0.16em] text-muted-ink uppercase">
+                    {p.zeroTracking}
                   </span>
-                  <span
-                    aria-hidden={state !== "sending"}
-                    className={`absolute inset-0 flex items-center justify-center gap-2.5 transition-opacity duration-300 ${
-                      state === "sending" ? "opacity-100" : "opacity-0"
-                    }`}
-                  >
-                    <Loader2 size={12} className="animate-spin" /> {p.submitting}
-                  </span>
-                </button>
-                <span className="font-mono text-[10px] tracking-[0.16em] text-muted-ink uppercase">
-                  {p.zeroTracking}
-                </span>
-                {state === "error" && (
-                  <span
-                    aria-live="polite"
-                    className="font-mono text-[10px] tracking-[0.16em] text-ebony uppercase"
-                  >
-                    {errorMessage ?? p.error}
-                  </span>
-                )}
+                </div>
               </div>
             </form>
           )}
