@@ -95,11 +95,20 @@ export async function handleContactRequest(request: Request): Promise<Response> 
   const { deliverContactMessage } = await import("@/services/mailService");
   const { notifyChat } = await import("@/services/chatService");
 
-  // Beide kanalen los van elkaar: een SMTP-storing mag de kChat-melding niet
-  // tegenhouden en omgekeerd.
+  // Beide kanalen lopen parallel en falen onafhankelijk. Een haperende kChat-
+  // webhook mag de e-mailstroom en formulierbevestiging nooit blokkeren.
   const [mailSettled, chatSettled] = await Promise.allSettled([
     deliverContactMessage(data, { requestId, idempotencyKey, reference }),
-    notifyChat({ ...data, requestId, reference }),
+    notifyChat({ ...data, requestId, reference }).catch((error) => {
+      logMail({
+        kind: "failed",
+        channel: "chat",
+        reason: "caught_exception",
+        requestId,
+        errorMessage: String(error),
+      });
+      return { sent: false };
+    }),
   ]);
 
   const delivery =
