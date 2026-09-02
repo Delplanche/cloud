@@ -7,6 +7,7 @@ import {
   localeLabels,
   localePath,
   locales,
+  ogImageMeta,
 } from "@/i18n/config";
 import { getDict } from "@/i18n";
 import { Container } from "@/components/site/Layout";
@@ -21,6 +22,9 @@ export const Route = createFileRoute("/")({
         { property: "og:title", content: meta.title },
         { property: "og:description", content: meta.description },
         { property: "og:url", content: `${SITE_URL}${localePath(defaultLocale, "home")}` },
+        { name: "twitter:title", content: meta.title },
+        { name: "twitter:description", content: meta.description },
+        ...ogImageMeta("home", defaultLocale, meta.title),
       ],
       links: [
         { rel: "canonical", href: `${SITE_URL}${localePath(defaultLocale, "home")}` },
