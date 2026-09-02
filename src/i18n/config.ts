@@ -40,6 +40,25 @@ export const slugs: Record<PageKey, Record<Locale, string>> = {
 
 export const SITE_URL = "https://delplanche.cloud";
 
+/** Sociale bannerafbeelding per pagina en taal (1200x630, gegenereerd uit het echte logo). */
+export function ogImageUrl(page: PageKey | "cloud", locale: Locale): string {
+  return `${SITE_URL}/og/${page}-${locale}.jpg`;
+}
+
+/** og:image + twitter:image meta-tags voor één pagina. */
+export function ogImageMeta(page: PageKey | "cloud", locale: Locale, alt: string) {
+  const url = ogImageUrl(page, locale);
+  return [
+    { property: "og:image", content: url },
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
+    { property: "og:image:alt", content: alt },
+    { name: "twitter:card", content: "summary_large_image" },
+    { name: "twitter:image", content: url },
+    { name: "twitter:image:alt", content: alt },
+  ];
+}
+
 export function isLocale(value: unknown): value is Locale {
   return typeof value === "string" && (locales as readonly string[]).includes(value);
 }

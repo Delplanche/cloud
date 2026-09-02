@@ -3,6 +3,7 @@ import {
   SITE_URL,
   cloudAlternateLinks,
   cloudPath,
+  ogImageMeta,
   slugs,
   toLocale,
   type Locale,
@@ -30,6 +31,9 @@ export const Route = createFileRoute("/$lang/cloud/$target")({
         { property: "og:title", content: entry.metaTitle },
         { property: "og:description", content: entry.metaDescription },
         { property: "og:url", content: `${SITE_URL}${cloudPath(locale, params.target)}` },
+        { name: "twitter:title", content: entry.metaTitle },
+        { name: "twitter:description", content: entry.metaDescription },
+        ...ogImageMeta("cloud", locale, entry.metaTitle),
       ],
       links: cloudAlternateLinks(locale, params.target),
     };

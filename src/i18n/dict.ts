@@ -416,10 +416,10 @@ const nl: Dict = {
     badge: "Status: geverifieerde Zwitserse stack",
     title: "Sovereign Cloud Architecture.",
     lead: "Absolute datasoevereiniteit, ontworpen voor volledige onafhankelijkheid. Geen compromissen, volledige controle.",
-    ctaPrimary: "Deploy cloud stack",
-    ctaSecondary: "Bekijk architectuur",
+    ctaPrimary: "Zet je cloudstack op",
+    ctaSecondary: "Bekijk de architectuur",
     flowIndex: "A / Dataflow",
-    flowTitle: "Direct Architecture Flow",
+    flowTitle: "Directe architectuurstroom",
     flowLead:
       "Elk verzoek verlaat de browser versleuteld en eindigt binnen Zwitserse jurisdictie. Zonder tussenliggende US-hops.",
     flowNodes: [
@@ -429,7 +429,7 @@ const nl: Dict = {
     ],
     flowFooter: "Jurisdictie: Zwitserse FADP — volledige compliance, geen extraterritoriale claim",
     stacksIndex: "B / Stacks",
-    stacksTitle: "The Contact Stacks",
+    stacksTitle: "De Delplanche-stacks",
     stacksLead:
       "Doelgerichte configuraties gebouwd voor absolute autonomie, maximale privacy en compromisloze uitvoering.",
     protocolIndex: "C / Protocol",
@@ -595,7 +595,7 @@ const nl: Dict = {
     formTitle: "Aanvraagformulier",
     org: "Organisatie / naam",
     domain: "Gewenste domeinnaam",
-    email: "Contact-e-mailadres",
+    email: "E-mailadres voor contact",
     stack: "Stackkeuze",
     stackOptions: [
       ["webhosting", "Managed webhosting & mail"],
@@ -606,17 +606,17 @@ const nl: Dict = {
     account: "Infomaniak accountstatus",
     accountExisting: "Ik heb al een account",
     accountNew: "Ik moet dit nog aanmaken",
-    notes: "Routing-configuratie notities",
+    notes: "Notities voor de routingconfiguratie",
     notesPlaceholder: "Huidige hosting, migratievereisten, mailboxen, verwacht verkeer…",
     submit: "Dien aanvraag in",
-    submitting: "Validatie loopt…",
+    submitting: "Bezig met valideren…",
     error: "Verzenden mislukt — probeer opnieuw of mail direct",
     zeroTracking: "Zero-tracking formulier",
     doneTitle: "Aanvraag gevalideerd — wachtrij bevestigd",
     doneRows: ["Ticket-ID", "Wachtrijpositie", "Validatie", "Bestemming", "Verwachte setup"],
     doneValidation: "Aanvraag geregistreerd in het dossier",
     doneSetup: "< 24 uur na toegangsverlening",
-    doneBody: "Je ontvangt een bevestiging op het opgegeven domein-contact.",
+    doneBody: "Je ontvangt een bevestiging op het opgegeven contactadres.",
     again: "Nieuwe aanvraag",
   },
   contactPage: {
@@ -631,7 +631,7 @@ const nl: Dict = {
     email: "E-mailadres",
     subject: "Onderwerp",
     message: "Bericht",
-    messagePlaceholder: "Beschrijf je huidige setup en wat je wil bereiken…",
+    messagePlaceholder: "Beschrijf je huidige opzet en wat je wil bereiken…",
     subjectPlaceholder: "Migratie van 12 mailboxen naar kSuite",
     submit: "Verstuur bericht",
     submitting: "Bezig met verzenden…",
@@ -643,7 +643,7 @@ const nl: Dict = {
     again: "Nieuw bericht",
     channelsIndex: "B / Kanalen",
     channelsTitle: "Directe Kanalen",
-    mailLabel: "Direct mail",
+    mailLabel: "Rechtstreekse e-mail",
     mailNote: "Gehost op Infomaniak kMail — Zwitserse jurisdictie, geen scanning.",
     matrixLabel: "Matrix-protocol",
     matrixNote: "End-to-end versleuteld, federatief. Voor realtime technisch overleg.",
@@ -655,11 +655,11 @@ const nl: Dict = {
     copied: "Gekopieerd",
   },
   legalPage: {
-    index: "05 / Juridisch",
+    index: "05 / Impressum",
     title: "Juridisch Impressum",
     lead: "Wettelijk verplichte identificatie van de uitgever van deze site.",
     rows: [
-      ["Beheerder", "Delplanche / Jona Zeno Delplanche (J.Z.D.)"],
+      ["Uitgever", "Delplanche / Jona Zeno Delplanche (J.Z.D.)"],
       ["Locatie", "Brussel, België / Europa"],
       ["Contact", "core@delplanche.cloud"],
       ["Infrastructuurpartner", "Infomaniak Network SA — Genève, Zwitserland"],
@@ -682,7 +682,7 @@ const nl: Dict = {
       },
       {
         index: "D / Aansprakelijkheid",
-        title: "Aansprakelijkheid & stewardship",
+        title: "Aansprakelijkheid & afhankelijkheden van derden",
         body: "De inhoud is informatief en met zorg samengesteld, maar specificaties, prijzen en voorwaarden van derden (waaronder Infomaniak) kunnen zonder aankondiging wijzigen. Controleer steeds de actuele voorwaarden bij de aanbieder vóór aankoop. Delplanche aanvaardt geen aansprakelijkheid voor schade door onderbrekingen bij derden, gewijzigde providervoorwaarden of beslissingen genomen op basis van deze documentatie.",
       },
     ],
@@ -708,7 +708,7 @@ const nl: Dict = {
         "Serverlogs blijven binnen Zwitserse/EU-jurisdictie en worden kort bewaard.",
       ],
     ],
-    disclosureIndex: "B / Verantwoording",
+    disclosureIndex: "B / Transparantie",
     disclosureTitle: "Affiliate-verantwoording",
     disclosureQuote:
       "Delplanche kan een commissie ontvangen wanneer je diensten afneemt via onze links (/cloud/*). Dit beïnvloedt je prijs niet en ondersteunt het onderhoud van onze soevereine tooling.",
@@ -724,12 +724,12 @@ const nl: Dict = {
     open: "Open Source",
     copy: "[ COPY ]",
     copied: "[ COPIED! ]",
-    contactCta: "Secure contact",
+    contactCta: "Beveiligd contact",
     signature: "// Elke stack persoonlijk nagekeken voor oplevering. — J.Z.D.",
     hosting:
-      "// Hosted exclusively on 100% hydroelectric Swiss infrastructure (Infomaniak SA, Genève)",
+      "// Uitsluitend gehost op 100% hydro-elektrische Zwitserse infrastructuur (Infomaniak SA, Genève)",
     impressum: "// Impressum: Delplanche — J.Z.D., Brussel (BE) —",
-    impressumLink: "volledige akte",
+    impressumLink: "volledig impressum",
   },
 };
 
@@ -793,9 +793,9 @@ const fr: Dict = {
     ctaPrimary: "Déployer la stack",
     ctaSecondary: "Explorer l'architecture",
     flowIndex: "A / Dataflow",
-    flowTitle: "Direct Architecture Flow",
+    flowTitle: "Flux d'architecture direct",
     flowLead:
-      "Chaque requête quitte le navigateur de manière cryptée et se termine sous juridiction suisse. Zéro saut intermédiaire américain.",
+      "Chaque requête quitte le navigateur chiffrée et se termine sous juridiction suisse. Aucun saut intermédiaire américain.",
     flowNodes: [
       ["01 / Client", "Navigateur client", "Handshake TLS 1.3"],
       ["02 / Edge", "Delplanche Edge Routing", "Routage & cache"],
@@ -804,7 +804,7 @@ const fr: Dict = {
     flowFooter:
       "Juridiction : LPD suisse — conformité totale, aucune revendication extraterritoriale",
     stacksIndex: "B / Stacks",
-    stacksTitle: "The Contact Stacks",
+    stacksTitle: "Les stacks Delplanche",
     stacksLead:
       "Des configurations sur mesure conçues pour une autonomie absolue, une confidentialité stricte et une exécution irréprochable.",
     protocolIndex: "C / Protocole",
@@ -1017,7 +1017,7 @@ const fr: Dict = {
     again: "Nouveau message",
     channelsIndex: "B / Canaux",
     channelsTitle: "Canaux directs",
-    mailLabel: "Courriel direct",
+    mailLabel: "E-mail direct",
     mailNote: "Hébergé sur Infomaniak kMail — juridiction suisse, aucun scan.",
     matrixLabel: "Protocole Matrix",
     matrixNote: "Chiffré de bout en bout, fédéré. Pour les échanges techniques en temps réel.",
@@ -1029,7 +1029,7 @@ const fr: Dict = {
     copied: "Copié",
   },
   legalPage: {
-    index: "05 / Légal",
+    index: "05 / Mentions",
     title: "Mentions légales",
     lead: "Identification légale de l'éditeur de ce site.",
     rows: [
@@ -1085,7 +1085,7 @@ const fr: Dict = {
   },
   footer: {
     tagline:
-      "Sovereign Cloud Architecture & Turn-Key Infrastructure. Partie de l'écosystème Delplanche.",
+      "Sovereign Cloud Architecture & Turn-Key Infrastructure. Composante de l'écosystème Delplanche.",
     infrastructure: "Infrastructure",
     law: "Sécurité & droit",
     vectors: "Vecteurs directs",
@@ -1095,9 +1095,9 @@ const fr: Dict = {
     contactCta: "Contact sécurisé",
     signature: "// Chaque stack vérifiée personnellement avant livraison. — J.Z.D.",
     hosting:
-      "// Hosted exclusively on 100% hydroelectric Swiss infrastructure (Infomaniak SA, Genève)",
+      "// Hébergé exclusivement sur une infrastructure suisse 100% hydroélectrique (Infomaniak SA, Genève)",
     impressum: "// Impressum : Delplanche — J.Z.D., Bruxelles (BE) —",
-    impressumLink: "acte complet",
+    impressumLink: "mentions complètes",
   },
 };
 
