@@ -3,6 +3,7 @@ import {
   SITE_URL,
   cloudAlternateLinks,
   cloudPath,
+  ogImageMeta,
   slugs,
   toLocale,
   type Locale,
