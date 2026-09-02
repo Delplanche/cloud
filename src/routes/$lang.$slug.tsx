@@ -3,6 +3,7 @@ import {
   SITE_URL,
   alternateLinks,
   localePath,
+  ogImageMeta,
   pageFromSlug,
   toLocale,
   type PageKey,
