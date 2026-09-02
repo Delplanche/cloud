@@ -45,6 +45,9 @@ export const Route = createFileRoute("/$lang/$slug")({
         { property: "og:title", content: meta.title },
         { property: "og:description", content: meta.description },
         { property: "og:url", content: `${SITE_URL}${localePath(locale, page)}` },
+        { name: "twitter:title", content: meta.title },
+        { name: "twitter:description", content: meta.description },
+        ...ogImageMeta(page, locale, meta.title),
       ],
       links: alternateLinks(locale, page),
     };
