@@ -117,9 +117,9 @@ def banner(page, locale, eyebrow, title, subtitle, accent):
 PAGES = {
     "home": {
         "accent": MOSS,
-        "en": ("Sovereign cloud architecture", "Sovereign Cloud Architecture", "Swiss hosting, VPS and kSuite under FADP protection, powered by hydroelectricity."),
-        "nl": ("Soevereine cloudarchitectuur", "Soevereine Cloudarchitectuur", "Zwitserse hosting, VPS en kSuite onder FADP-bescherming, gevoed door waterkracht."),
-        "fr": ("Architecture cloud souveraine", "Architecture Cloud Souveraine", "Hébergement, VPS et kSuite suisses sous protection LPD, alimentés par l'hydroélectricité."),
+        "en": ("Infrastructure desk / Genève", "Sovereign Cloud Architecture", "Swiss hosting, VPS and kSuite under FADP protection, powered by hydroelectricity."),
+        "nl": ("Infrastructuurdesk / Genève", "Soevereine Cloudarchitectuur", "Zwitserse hosting, VPS en kSuite onder FADP-bescherming, gevoed door waterkracht."),
+        "fr": ("Bureau d'infrastructure / Genève", "Architecture Cloud Souveraine", "Hébergement, VPS et kSuite suisses sous protection LPD, alimentés par l'hydroélectricité."),
     },
     "stack": {
         "accent": MOSS,
